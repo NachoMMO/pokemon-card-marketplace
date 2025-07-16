@@ -6,10 +6,13 @@ Este documento describe el plan del proyecto para crear una aplicación web de c
 
 ## 2. Stack Tecnológico
 
-*   **Frontend:** Astro con componentes en Vue.js
-*   **Backend:** Node.js
-*   **Base de Datos:** Supabase
+*   **Aplicación:** Vue 3 SPA con Composition API (Arquitectura Hexagonal)
+*   **Backend Externo:** Supabase (Database + Edge Functions + Auth + Realtime + Storage)
+*   **Base de Datos:** Supabase PostgreSQL
 *   **Autenticación:** Supabase Auth
+*   **Estado:** Pinia Store
+*   **Enrutado:** Vue Router
+*   **Build Tool:** Vite
 *   **Testing:** Vitest para tests unitarios/integración, Playwright para tests E2E
 *   **Linting:** ESLint
 *   **Formateo:** Prettier
@@ -18,12 +21,13 @@ Este documento describe el plan del proyecto para crear una aplicación web de c
 
 ## 3. Enfoque de Desarrollo: Test-Driven Development (TDD)
 
-El proyecto se construirá característica por característica, siguiendo un ciclo TDD estricto tanto para desarrollo backend como frontend. Los archivos Gherkin `.feature` en el directorio `docs/features` servirán como la fuente principal de verdad para los requerimientos de cada característica.
+El proyecto se construirá característica por característica, siguiendo un ciclo TDD estricto para la Arquitectura Hexagonal con Vue 3 y Supabase como infraestructura externa. Los archivos Gherkin `.feature` en el directorio `docs/features` servirán como la fuente principal de verdad para los requerimientos de cada característica.
 
-El ciclo TDD para cada característica será:
-1.  **🔴 Red:** Escribir un test que falle y defina una nueva funcionalidad.
-2.  **🟢 Green:** Escribir el código más simple posible para hacer pasar el test.
-3.  **🔄 Refactor:** Limpiar y optimizar el código mientras se asegura que todos los tests siguen pasando.
+El ciclo TDD seguirá las capas de la arquitectura hexagonal:
+1.  **🎯 Domain Layer TDD:** Tests de entidades y casos de uso sin dependencias externas.
+2.  **� Application Layer TDD:** Tests de interfaces y contratos de puertos.
+3.  **🏗️ Infrastructure Layer TDD:** Tests de adaptadores de Supabase e integración.
+4.  **🎨 Presentation Layer TDD:** Tests de componentes Vue y flujos E2E.
 
 ## 4. Calidad de Código y Herramientas
 
@@ -43,11 +47,18 @@ El objetivo de esta fase es establecer la estructura del proyecto, entorno de de
 1.  **Configuración de Control de Versiones:**
     *   Inicializar un repositorio Git.
 2.  **Scaffolding del Proyecto:**
-    *   Inicializar un proyecto Node.js para el backend.
-    *   Inicializar un proyecto Astro para el frontend y configurar integración con Vue.js.
+    *   Inicializar un proyecto Vue 3 con Vite y TypeScript.
+    *   Configurar Pinia para gestión de estado y Vue Router para navegación.
+    *   Instalar y configurar el cliente JavaScript de Supabase.
+    *   Configurar sistema de inyección de dependencias para la arquitectura hexagonal.
 3.  **Configuración de Herramientas:**
-    *   Configurar frameworks de testing (Vitest, Playwright) para ambos proyectos.
+    *   Configurar frameworks de testing (Vitest, Playwright) para la aplicación Vue 3.
     *   Configurar ESLint y Prettier para linting y formateo automático.
+    *   Configurar Supabase CLI para desarrollo local y migraciones de base de datos.
+4.  **Fundamentos de Arquitectura Hexagonal:**
+    *   Establecer estructura de capas: Domain, Application, Infrastructure, Presentation.
+    *   Configurar patrones de inyección de dependencias y inversión de control.
+    *   Crear interfaces base para repositorios y servicios.
 4.  **Configuración del Esquema de Base de Datos:**
     *   Traducir las definiciones de entidades YAML en `docs/entities` a un esquema inicial de base de datos en Supabase. Esto incluye tablas para `users`, `user_profiles`, `cards`, `collections`, `cart_items`, `purchases`, `sales`, y `messages`.
     *   Establecer relaciones iniciales entre tablas.

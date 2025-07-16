@@ -6,37 +6,47 @@ This document outlines the project plan for creating a web application for buyin
 
 ## 2. Technology Stack
 
-*   **Frontend:** Astro with Vue.js components
-*   **Backend:** Supabase (Database + Edge Functions + Auth)
+*   **Application:** Vue 3 SPA with Composition API (Hexagonal Architecture)
+*   **External Backend:** Supabase (Database + Edge Functions + Auth + Realtime + Storage)
 *   **Database:** Supabase PostgreSQL
 *   **Authentication:** Supabase Auth
 *   **Real-time:** Supabase Realtime
 *   **File Storage:** Supabase Storage (for card images)
 *   **Testing:** Vitest for unit/integration tests, Playwright for E2E tests
+*   **State Management:** Pinia
+*   **Routing:** Vue Router
+*   **Build Tool:** Vite
 *   **Linting:** ESLint
 *   **Formatting:** Prettier
 *   **Version Control:** Git
-*   **Hosting:** Vercel (Frontend)
+*   **Hosting:** Vercel
 
 ## 3. Development Approach: Test-Driven Development (TDD)
 
-The project will be built feature by feature, following a strict TDD cycle for frontend development with Supabase integration. The Gherkin `.feature` files in the `docs/features` directory will serve as the primary source of truth for the requirements of each feature.
+The project will be built feature by feature, following a strict TDD cycle for Vue 3 hexagonal architecture development with Supabase integration. The Gherkin `.feature` files in the `docs/features` directory will serve as the primary source of truth for the requirements of each feature.
 
-The TDD cycle for each feature will be:
-1.  **Red:** Write a failing test that defines a new piece of functionality.
-2.  **Green:** Write the simplest possible code to make the test pass.
-3.  **Refactor:** Clean up and optimize the code while ensuring all tests continue to pass.
+The TDD cycle will follow the hexagonal architecture layers:
+1.  **Domain Layer TDD:** Write failing tests for business entities and use cases, then implement pure business logic.
+2.  **Application Layer TDD:** Write tests for port interfaces and DTOs, ensuring proper contracts.
+3.  **Infrastructure Layer TDD:** Write tests for Supabase adapters and Vue composables, implementing external integrations.
+4.  **Presentation Layer TDD:** Write E2E tests for Vue components and user interactions.
 
-## 4. Supabase Architecture
+## 4. Vue 3 Hexagonal Architecture with Supabase
 
-The application will leverage Supabase's comprehensive backend-as-a-service platform:
+The application will implement a complete hexagonal architecture within the Vue 3 SPA, using Supabase as external infrastructure:
 
-*   **Database:** PostgreSQL with Row Level Security (RLS) for data protection
-*   **Authentication:** Built-in user management with email/password and social providers
-*   **Edge Functions:** Serverless functions for complex business logic (payments, notifications)
-*   **Real-time:** Live updates for messaging and marketplace activities
-*   **Storage:** Secure file storage for card images and user avatars
-*   **API:** Auto-generated REST and GraphQL APIs with real-time subscriptions
+*   **Domain Layer:** Pure TypeScript entities and use cases containing all business logic
+*   **Application Layer:** Port interfaces defining contracts for external services
+*   **Infrastructure Layer:** Concrete adapters implementing Supabase integrations
+*   **Presentation Layer:** Vue 3 components consuming domain logic through ports
+
+**Supabase Integration:**
+*   **Database:** PostgreSQL with Row Level Security (RLS) accessed through repository adapters
+*   **Authentication:** User management through authentication service adapters
+*   **Edge Functions:** Complex business logic implementation through service adapters
+*   **Real-time:** Live updates through real-time communication adapters
+*   **Storage:** File management through storage service adapters
+*   **API:** Data access through repository pattern implementations
 
 ## 5. Code Quality and Tooling
 
@@ -57,8 +67,11 @@ The goal of this phase is to establish the project structure, development enviro
 1.  **Version Control Setup:**
     *   Initialize a Git repository.
 2.  **Project Scaffolding:**
-    *   Initialize an Astro project for the frontend, configuring Vue.js integration.
-    *   Install and configure Supabase JavaScript client.
+    *   Initialize a Vue 3 project with Vite for optimal development experience.
+    *   Configure TypeScript for type safety across all architecture layers.
+    *   Install and configure Supabase JavaScript client for external service integration.
+    *   Set up Pinia for state management and Vue Router for navigation.
+    *   Configure dependency injection system for hexagonal architecture.
 3.  **Supabase Setup:**
     *   Create Supabase project and configure environment variables.
     *   Set up local development environment with Supabase CLI.
@@ -70,46 +83,66 @@ The goal of this phase is to establish the project structure, development enviro
     *   Configure Row Level Security (RLS) policies for data protection.
     *   Set up database relationships and constraints.
     *   Create database functions for complex queries and business logic.
+6.  **Hexagonal Architecture Foundation:**
+    *   Set up domain layer structure with entities and use cases.
+    *   Create application layer with port interfaces for repositories and services.
+    *   Implement infrastructure layer with Supabase adapter implementations.
+    *   Configure dependency injection and inversion of control patterns.
 
 ### Phase 2: Feature Development (Iterative TDD Cycles)
 
-This phase involves building the application one feature at a time using Supabase as the complete backend solution. The order of implementation will prioritize core functionality first.
+This phase involves building the application one feature at a time using hexagonal architecture principles with Supabase as external infrastructure. The order of implementation will prioritize core functionality first.
 
 **Development Workflow for Each Feature (e.g., `user_account_creation.feature`):**
 
-1.  **Frontend TDD Cycle (Astro + Vue.js + Supabase):**
-    *   **Write Failing Test:** Create an E2E test (Playwright) that simulates user interactions with the feature in the browser, asserting the expected outcome. This test will fail because the feature isn't implemented yet.
-    *   **Write Implementation Code:** Develop the feature using Astro and Vue.js components, interacting directly with Supabase using the JavaScript client library. Implement any required Edge Functions for complex business logic.
-    *   **Refactor:** Refine the code for better structure, readability, and performance, ensuring all tests still pass.
+1.  **Domain Layer TDD:**
+    *   **Write Failing Tests:** Create unit tests for business entities and use cases with no external dependencies.
+    *   **Implement Domain Logic:** Write pure TypeScript classes and functions containing business rules.
+    *   **Refactor:** Clean up domain code ensuring business logic remains framework-agnostic.
+
+2.  **Application Layer TDD:**
+    *   **Write Port Interface Tests:** Define contracts for repositories and services.
+    *   **Create DTOs:** Define data transfer objects for layer communication.
+    *   **Validate Contracts:** Ensure port interfaces are properly designed.
+
+3.  **Infrastructure Layer TDD:**
+    *   **Write Adapter Tests:** Test Supabase repository implementations and service adapters.
+    *   **Implement Adapters:** Create concrete implementations of port interfaces using Supabase client.
+    *   **Integration Testing:** Test adapters against real Supabase services in controlled environments.
+
+4.  **Presentation Layer TDD:**
+    *   **Write Component Tests:** Test Vue components in isolation using mocked dependencies.
+    *   **Write E2E Tests:** Create Playwright tests simulating complete user interactions.
+    *   **Implement UI:** Develop Vue components consuming domain logic through composables.
 
 **Feature Implementation Order:**
 
-1.  **User Authentication (Supabase Auth):**
-    *   `user_account_creation.feature`: User registration using Supabase Auth with email confirmation.
-    *   `user_login.feature`: Authentication flow with Supabase Auth including session management.
-    *   `password_recovery.feature`: Password reset functionality using Supabase Auth email templates.
+1.  **User Authentication (Domain-Driven with Supabase Adapters):**
+    *   `user_account_creation.feature`: User registration use case with Supabase Auth adapter and email confirmation.
+    *   `user_login.feature`: Authentication domain logic with Supabase Auth adapter for session management.
+    *   `password_recovery.feature`: Password reset use case using Supabase Auth email service adapter.
 
-2.  **Card & Collection Management:**
-    *   `view_card_catalog.feature`: Fetch and display card data from Supabase with pagination and filtering.
-    *   `search_cards.feature`: Implement full-text search using Supabase database functions.
-    *   `view_card_details.feature`: Fetch detailed card information with related data.
-    *   `view_card_collection.feature`: Display user's personal collection with real-time updates.
-    *   `add_cards_to_collection.feature`: Update collection data in Supabase with RLS enforcement.
+2.  **Card & Collection Management (Repository Pattern):**
+    *   `view_card_catalog.feature`: Card query use cases with Supabase repository implementations and pagination.
+    *   `search_cards.feature`: Search domain logic with Supabase full-text search adapter.
+    *   `view_card_details.feature`: Card detail use case with Supabase repository for related data.
+    *   `view_card_collection.feature`: Collection management use case with real-time Supabase adapter.
+    *   `add_cards_to_collection.feature`: Collection update use case with Supabase repository and RLS enforcement.
 
-3.  **Marketplace Features:**
-    *   `add_card_to_cart.feature`: Manage shopping cart state in Supabase with user sessions.
-    *   `remove_card_from_cart.feature`: Update cart items with optimistic UI updates.
-    *   `purchase_cards_from_cart.feature`: Process transactions using Supabase Edge Functions for payment logic.
-    *   `sell_cards.feature`: Create sale listings with inventory management in Supabase.
+3.  **Marketplace Features (Business Logic Separation):**
+    *   `add_card_to_cart.feature`: Shopping cart domain logic with Supabase state persistence adapter.
+    *   `remove_card_from_cart.feature`: Cart management use case with optimistic UI through Vue composables.
+    *   `purchase_cards_from_cart.feature`: Transaction use case with Supabase Edge Functions adapter for payment logic.
+    *   `sell_cards.feature`: Sales listing use case with inventory management through Supabase repository.
 
-4.  **User Profile & Account Management:**
-    *   `view_edit_user_profile.feature`: CRUD operations for user profiles with image upload to Supabase Storage.
-    *   `manage_account_balance.feature`: Balance management with transaction history using Edge Functions.
-    *   `view_purchase_sales_history.feature`: Display transaction history with advanced filtering.
+4.  **User Profile & Account Management (Clean Architecture):**
+    *   `view_edit_user_profile.feature`: Profile management use case with Supabase repository and Storage adapter.
+    *   `manage_account_balance.feature`: Balance domain logic with transaction service using Edge Functions adapter.
+    *   `view_purchase_sales_history.feature`: History query use case with advanced filtering through Supabase repository.
 
-5.  **Real-time Messaging (Supabase Realtime):**
-    *   `manage_private_messages.feature`: Real-time messaging system using Supabase Realtime subscriptions.
-    *   `send_private_messages.feature`: Message creation with live updates and notifications.
+5.  **Real-time Messaging (Event-Driven Architecture):**
+    *   `manage_private_messages.feature`: Messaging domain logic with Supabase Realtime adapter for live updates.
+    *   `send_private_messages.feature`: Message creation use case with real-time notification service adapter.
 
 ### Phase 3: Production Optimization and Deployment
 
@@ -118,49 +151,55 @@ This phase ensures the application is robust, performant, and ready for producti
 **Tasks:**
 
 1.  **Performance Optimization:**
-    *   Implement caching strategies for card data and user collections.
-    *   Optimize Supabase queries and add database indexes.
-    *   Configure Supabase Edge Functions for optimal performance.
+    *   Implement caching strategies at the domain layer for frequently accessed data.
+    *   Optimize Supabase repository implementations with efficient queries and indexes.
+    *   Configure Supabase Edge Functions adapters for optimal performance.
+    *   Implement Vue 3 performance optimizations (lazy loading, component splitting).
 
 2.  **Security Hardening:**
-    *   Review and refine Row Level Security (RLS) policies.
-    *   Implement rate limiting using Supabase Edge Functions.
-    *   Configure proper CORS and security headers.
+    *   Review and refine domain layer business rules for security compliance.
+    *   Strengthen Supabase adapter implementations with proper error handling.
+    *   Configure Row Level Security (RLS) policies through repository adapters.
+    *   Implement rate limiting in service adapters using Supabase Edge Functions.
 
 3.  **Final Integration Testing:**
-    *   Run comprehensive test suite (unit, integration, E2E).
-    *   Test real-time features and Edge Function performance.
-    *   Validate all user flows and error handling.
+    *   Run comprehensive test suite across all hexagonal architecture layers.
+    *   Test real-time adapters and Edge Function service implementations.
+    *   Validate all use cases and domain logic with integration tests.
+    *   Perform end-to-end testing of complete user journeys.
 
 4.  **Production Deployment:**
-    *   Deploy Astro frontend to Vercel with optimized build configuration.
-    *   Configure production Supabase project with proper environment variables.
-    *   Set up monitoring and logging for both frontend and Supabase services.
-    *   Configure custom domain, SSL certificates, and CDN optimization.
+    *   Deploy Vue 3 SPA to Vercel with optimized Vite build configuration.
+    *   Configure production Supabase project with proper adapter configurations.
+    *   Set up monitoring for domain layer performance and adapter reliability.
+    *   Configure custom domain, SSL certificates, and CDN optimization for Vue SPA.
 
-## 7. Supabase-Specific Considerations
+## 7. Hexagonal Architecture with Supabase Integration
 
-**Database Design:**
-*   Leverage PostgreSQL features like JSON columns for flexible card metadata.
-*   Use database triggers for maintaining data consistency.
-*   Implement soft deletes for audit trails.
+**Domain Layer Design:**
+*   Pure TypeScript entities with business rules and invariants.
+*   Use cases that orchestrate business operations without external dependencies.
+*   Value objects for domain concepts like Money, Email, etc.
+*   Domain events for decoupled communication between bounded contexts.
 
-**Edge Functions Use Cases:**
-*   Payment processing and transaction validation.
-*   Complex business logic for card trading rules.
-*   Email notifications and webhooks.
-*   Data aggregation and reporting.
+**Application Layer Contracts:**
+*   Repository interfaces defining data persistence contracts.
+*   Service interfaces for external integrations (auth, storage, notifications).
+*   Query interfaces for read-only operations and data projections.
+*   Event publisher interfaces for domain event handling.
 
-**Real-time Features:**
-*   Live chat and messaging updates.
-*   Real-time marketplace activity feeds.
-*   Live auction functionality (future enhancement).
+**Infrastructure Layer Implementations:**
+*   Supabase repository adapters implementing domain repository contracts.
+*   Supabase service adapters for authentication, storage, and real-time features.
+*   Vue composables as driving adapters that consume use cases.
+*   Pinia stores for presentation state management.
 
-**Security:**
-*   Row Level Security for user data isolation.
-*   API key management and rate limiting.
-*   Input validation and sanitization.
+**Presentation Layer Integration:**
+*   Vue components that consume domain logic through composables.
+*   Reactive state management with clear separation from business logic.
+*   Route guards implementing domain-level authorization rules.
+*   Form validation using domain entities and value objects.
 
 ## 8. Timeline
 
-A detailed timeline with specific deadlines for each feature will be created and maintained separately, taking into account the streamlined development process enabled by Supabase's comprehensive backend services.
+A detailed timeline with specific deadlines for each feature will be created and maintained separately, taking into account the hexagonal architecture development approach and the streamlined external service integration enabled by Supabase's comprehensive backend services.

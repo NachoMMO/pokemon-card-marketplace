@@ -16,38 +16,46 @@ Este proyecto es una plataforma digital que permite a los usuarios:
 
 <div class="grid cards" markdown>
 
--   :material-web: **Frontend**
+-   :material-web: **Aplicación**
 
     ---
 
-    Astro con componentes Vue.js para una experiencia moderna y rápida
+    Vue 3 SPA con Composition API implementando Arquitectura Hexagonal
 
--   :material-server: **Backend**
+-   :material-server: **Backend Externo**
 
     ---
 
-    Node.js con APIs RESTful robustas y escalables
+    Supabase como infraestructura externa (Database + Auth + Realtime + Storage)
 
 -   :material-database: **Base de Datos**
 
     ---
 
-    Supabase para gestión de datos y autenticación
+    Supabase PostgreSQL con Row Level Security (RLS)
 
 -   :material-test-tube: **Testing**
 
     ---
 
-    Vitest y Playwright para garantizar calidad
+    Vitest y Playwright con TDD por capas de arquitectura hexagonal
+
+-   :material-sitemap: **Arquitectura**
+
+    ---
+
+    Hexagonal Architecture con Domain-Driven Design
 
 </div>
 
 ## 📋 Metodología
 
-El proyecto sigue una metodología **Test-Driven Development (TDD)** estricta:
+El proyecto sigue una metodología **Test-Driven Development (TDD)** estricta con **Arquitectura Hexagonal**:
 
-1. **🔴 Red**: Escribir tests que fallen
-2. **🟢 Green**: Implementar código mínimo para pasar
+1. **🎯 Domain Layer**: Tests de entidades y casos de uso puros
+2. **🔌 Application Layer**: Tests de contratos e interfaces
+3. **🏗️ Infrastructure Layer**: Tests de adaptadores y servicios externos
+4. **🎨 Presentation Layer**: Tests de componentes Vue y E2E
 3. **🔄 Refactor**: Optimizar manteniendo todos los tests
 
 ## 🗂️ Estructura de la Documentación

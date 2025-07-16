@@ -17,11 +17,13 @@ This project is a web application for buying and selling Pokemon TCG cards. It a
 
 ## Technologies Used
 
-*   **Frontend:** Astro with components in Vue.js
-*   **Backend:** Node.js
-*   **Database:** Supabase
-*   **Authentication:** Supabase Auth
-*   **Testing:** Vitest for unit/integration tests, Playwright for E2E tests.
+*   **Application:** Vue 3 SPA with Composition API (Hexagonal Architecture)
+*   **External Backend:** Supabase (Database + Auth + Realtime + Storage + Edge Functions)
+*   **Architecture:** Hexagonal Architecture with Domain-Driven Design
+*   **State Management:** Pinia
+*   **Routing:** Vue Router
+*   **Build Tool:** Vite
+*   **Testing:** Vitest for unit/integration tests, Playwright for E2E tests
 *   **Linting:** ESLint
 *   **Formatting:** Prettier
 *   **Version Control:** Git
