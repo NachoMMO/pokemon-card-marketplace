@@ -1,0 +1,130 @@
+site_name: Pokemon Card Marketplace
+site_description: Documentación del proyecto Pokemon Card Marketplace
+site_author: Nacho Martinez
+
+docs_dir: docs_site
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - toc.follow
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Inicio: index.md
+  - Proyecto:
+    - Plan del Proyecto: project_plan.md
+    - Roadmap: roadmap.md
+  - Entidades:
+    - Resumen: entities/index.md
+    - Usuario: entities/user.entity.md
+    - Perfil de Usuario: entities/user_profile.entity.md
+    - Carta: entities/card.entity.md
+    - Colección: entities/collection.entity.md
+    - Carrito: entities/cart_item.entity.md
+    - Compra: entities/purchase.entity.md
+    - Venta: entities/sale.entity.md
+    - Mensaje: entities/message.entity.md
+  - Funcionalidades:
+    - Resumen: features/index.md
+    - Autenticación:
+      - Crear Cuenta: features/user_account_creation.feature
+      - Iniciar Sesión: features/user_login.feature
+      - Recuperar Contraseña: features/password_recovery.feature
+    - Catálogo:
+      - Ver Catálogo: features/view_card_catalog.feature
+      - Buscar Cartas: features/search_cards.feature
+      - Detalles de Carta: features/view_card_details.feature
+    - Colección:
+      - Ver Colección: features/view_card_collection.feature
+      - Añadir Cartas: features/add_cards_to_collection.feature
+    - Compras:
+      - Añadir al Carrito: features/add_card_to_cart.feature
+      - Remover del Carrito: features/remove_card_from_cart.feature
+      - Comprar: features/purchase_cards_from_cart.feature
+    - Ventas:
+      - Vender Cartas: features/sell_cards.feature
+    - Cuenta:
+      - Ver/Editar Perfil: features/view_edit_user_profile.feature
+      - Gestionar Saldo: features/manage_account_balance.feature
+      - Historial: features/view_purchase_sales_history.feature
+    - Mensajes:
+      - Enviar Mensajes: features/send_private_messages.feature
+      - Gestionar Mensajes: features/manage_private_messages.feature
+  - Vistas:
+    - Resumen: views/index.md
+    - Autenticación:
+      - Login: views/login.view.md
+      - Registro: views/register.view.md
+      - Recuperación: views/password_recovery.view.md
+    - Principal:
+      - Inicio: views/home.view.md
+      - Catálogo: views/card_catalog.view.md
+      - Detalles: views/card_details.view.md
+    - Usuario:
+      - Perfil: views/user_profile.view.md
+      - Editar Perfil: views/edit_user_profile.view.md
+      - Otro Perfil: views/other_user_profile.view.md
+    - Colección:
+      - Mi Colección: views/collection.view.md
+      - Detalles Colección: views/collection_details.view.md
+    - Comercio:
+      - Carrito: views/cart.view.md
+      - Compra: views/purchase.view.md
+      - Venta: views/sell.view.md
+      - Saldo: views/balance.view.md
+      - Recargar: views/recharge_balance.view.md
+    - Historial:
+      - Compras: views/purchase_history.view.md
+      - Ventas: views/sales_history.view.md
+    - Mensajes:
+      - Lista: views/private_messages.view.md
+      - Detalles: views/private_message_details.view.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/nachomartinez/pokemon-marketplace
