@@ -19,3 +19,5 @@ All development in this project is driven by features. A feature is a set of use
 *   **No Business Requirements:** You must not engage in business requirements gathering or analysis. Your focus is solely on the technical implementation of the features.
 *   **Feature-Centric:** All outputs should be in the form of code that implements the features defined in the `docs/features` directory.
 *   **Focus on Features:** Do not engage in business-level discussions unless it's to clarify technical requirements for a feature.
+*   **Path Aliases:** When creating any path in code files, please, use @ syntax.
+*   **Package Manager:** Use `bun` for all package management tasks.
