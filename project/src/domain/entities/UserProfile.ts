@@ -6,7 +6,7 @@ export class UserProfile {
     public readonly userId: string, // References auth.users.id
     public firstName: string,
     public lastName: string,
-    public displayName: string,
+    public displayName: string, // Unique display name (acts as username)
     public balance: number = 0,
     public role: UserRole = UserRole.BUYER,
     public tradingReputation: number = 0,
@@ -28,6 +28,108 @@ export class UserProfile {
     public notificationPreferences: NotificationPreferences = new NotificationPreferences()
   ) {}
 
+  // Factory method for creating a new UserProfile
+  static create(data: {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    balance?: number;
+    bio?: string;
+    avatarUrl?: string;
+    location?: string;
+  }): UserProfile {
+    const now = new Date();
+    return new UserProfile(
+      crypto.randomUUID(), // Generate new ID
+      data.userId,
+      data.firstName,
+      data.lastName,
+      data.displayName,
+      data.balance || 0,
+      UserRole.BUYER, // Default role
+      0, // Default trading reputation
+      0, // Default total trades
+      0, // Default successful trades
+      now, // Created at
+      now, // Updated at
+      undefined, // Date of birth
+      undefined, // Address
+      undefined, // City
+      undefined, // Postal code
+      undefined, // Country
+      data.bio,
+      data.avatarUrl,
+      data.location,
+      undefined, // Website
+      {}, // Social media links
+      new PrivacySettings(),
+      new NotificationPreferences()
+    );
+  }
+
+  // Update method for modifying user profile
+  update(updates: Partial<{
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    bio: string;
+    avatarUrl: string;
+    location: string;
+    website: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    socialMediaLinks: Record<string, string>;
+    privacySettings: PrivacySettings;
+    notificationPreferences: NotificationPreferences;
+  }>): UserProfile {
+    const updatedProfile = new UserProfile(
+      this.id,
+      this.userId,
+      updates.firstName ?? this.firstName,
+      updates.lastName ?? this.lastName,
+      updates.displayName ?? this.displayName,
+      this.balance,
+      this.role,
+      this.tradingReputation,
+      this.totalTrades,
+      this.successfulTrades,
+      this.createdAt,
+      new Date(), // Update timestamp
+      this.dateOfBirth,
+      updates.address ?? this.address,
+      updates.city ?? this.city,
+      updates.postalCode ?? this.postalCode,
+      updates.country ?? this.country,
+      updates.bio ?? this.bio,
+      updates.avatarUrl ?? this.avatarUrl,
+      updates.location ?? this.location,
+      updates.website ?? this.website,
+      updates.socialMediaLinks ?? this.socialMediaLinks,
+      updates.privacySettings ?? this.privacySettings,
+      updates.notificationPreferences ?? this.notificationPreferences
+    );
+
+    return updatedProfile;
+  }
+
+  // Getter for full name
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
+  // Method to check if profile is complete
+  isProfileComplete(): boolean {
+    return !!(this.firstName && this.lastName && this.displayName);
+  }
+
+  // Method to calculate trading success rate
+  get tradingSuccessRate(): number {
+    if (this.totalTrades === 0) return 0;
+    return (this.successfulTrades / this.totalTrades) * 100;
+  }
 }
 
 // Enums and value objects
