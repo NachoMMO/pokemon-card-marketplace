@@ -11,7 +11,7 @@ The entities represent the main data models of the Pokemon Card Marketplace syst
 | **Message** | [message.entity.md](./message.entity.md) | Private messages between users | Real-time with Supabase Realtime |
 | **Purchase** | [purchase.entity.md](./purchase.entity.md) | Purchase transactions | PostgreSQL with RLS |
 | **Sale** | [sale.entity.md](./sale.entity.md) | Sale transactions | PostgreSQL with RLS |
-| **Collection** | [collection.entity.md](./collection.entity.md) | User card collections | PostgreSQL with RLS |
+| **CollectionEntry** | [collection.entity.yaml](./collection.entity.yaml) | Individual card entries in user collections | PostgreSQL with RLS |
 | **CartItem** | [cart_item.entity.md](./cart_item.entity.md) | Shopping cart items | PostgreSQL with RLS |
 | **UserProfile** | [user_profile.entity.md](./user_profile.entity.md) | Extended user profile information | PostgreSQL with Supabase Storage |
 
@@ -24,14 +24,14 @@ erDiagram
     USER ||--o{ CART_ITEM : "has"
     USER ||--o{ PURCHASE : "makes"
     USER ||--o{ SALE : "receives"
-    USER ||--o{ COLLECTION : "owns"
+    USER ||--o{ COLLECTION_ENTRY : "owns"
     USER ||--o{ MESSAGE : "sends/receives"
     USER ||--|| USER_PROFILE : "has"
     
     CARD ||--o{ CART_ITEM : "in"
     CARD ||--o{ PURCHASE : "purchased"
     CARD ||--o{ SALE : "sold"
-    CARD ||--o{ COLLECTION : "collected"
+    CARD ||--o{ COLLECTION_ENTRY : "collected"
     
     PURCHASE ||--|| SALE : "creates"
     
@@ -116,7 +116,7 @@ erDiagram
         datetime updatedAt "Supabase managed"
     }
     
-    COLLECTION {
+    COLLECTION_ENTRY {
         uuid id PK
         uuid userId FK
         uuid cardId FK

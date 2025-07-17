@@ -78,16 +78,16 @@ The goal of this phase is to establish the project structure, development enviro
 4.  **✅ Tooling Setup:** *(Completed)*
     *   ✅ Set up testing frameworks (Vitest, Playwright) for the frontend project.
     *   ✅ Configure ESLint and Prettier for automated linting and formatting.
-5.  **Database Schema Setup:**
-    *   Create database tables based on YAML entity definitions in `docs/entities`: `users`, `user_profiles`, `cards`, `collections`, `cart_items`, `purchases`, `sales`, and `messages`.
-    *   Configure Row Level Security (RLS) policies for data protection.
-    *   Set up database relationships and constraints.
-    *   Create database functions for complex queries and business logic.
-6.  **Hexagonal Architecture Foundation:**
-    *   Set up domain layer structure with entities and use cases.
-    *   Create application layer with port interfaces for repositories and services.
-    *   Implement infrastructure layer with Supabase adapter implementations.
-    *   Configure dependency injection and inversion of control patterns.
+5.  **✅ Database Schema Setup:** *(Completed)*
+    *   ✅ Create database tables based on YAML entity definitions in `docs/entities`: `users`, `user_profiles`, `cards`, `collections`, `cart_items`, `purchases`, `sales`, and `messages`.
+    *   ✅ Configure Row Level Security (RLS) policies for data protection.
+    *   ✅ Set up database relationships and constraints.
+    *   ✅ Create database functions for complex queries and business logic.
+6.  **🔄 Hexagonal Architecture Foundation:** *(In Progress)*
+    *   ✅ Configure dependency injection and inversion of control patterns.
+    *   🔄 Set up domain layer structure with entities and use cases.
+    *   🔄 Create application layer with port interfaces for repositories and services.
+    *   🔄 Implement infrastructure layer with Supabase adapter implementations.
 
 ### Phase 2: Feature Development (Iterative TDD Cycles)
 

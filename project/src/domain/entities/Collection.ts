@@ -1,4 +1,4 @@
-export class Collection {
+export class CollectionEntry {
   constructor(
     public readonly id: string,
     public userId: string,

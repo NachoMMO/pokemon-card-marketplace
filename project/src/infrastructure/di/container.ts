@@ -31,7 +31,7 @@ export const DEPENDENCIES = {
   // Repositories
   USER_REPOSITORY: 'UserRepository',
   CARD_REPOSITORY: 'CardRepository',
-  COLLECTION_REPOSITORY: 'CollectionRepository',
+  COLLECTION_ENTRY_REPOSITORY: 'CollectionEntryRepository',
   CART_REPOSITORY: 'CartRepository',
   PURCHASE_REPOSITORY: 'PurchaseRepository',
   SALE_REPOSITORY: 'SaleRepository',
