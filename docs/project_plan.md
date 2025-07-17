@@ -64,20 +64,20 @@ The goal of this phase is to establish the project structure, development enviro
 
 **Tasks:**
 
-1.  **Version Control Setup:**
-    *   Initialize a Git repository.
-2.  **Project Scaffolding:**
-    *   Initialize a Vue 3 project with Vite for optimal development experience.
-    *   Configure TypeScript for type safety across all architecture layers.
-    *   Install and configure Supabase JavaScript client for external service integration.
-    *   Set up Pinia for state management and Vue Router for navigation.
-    *   Configure dependency injection system for hexagonal architecture.
-3.  **Supabase Setup:**
-    *   Create Supabase project and configure environment variables.
-    *   Set up local development environment with Supabase CLI.
-4.  **Tooling Setup:**
-    *   Set up testing frameworks (Vitest, Playwright) for the frontend project.
-    *   Configure ESLint and Prettier for automated linting and formatting.
+1.  **✅ Version Control Setup:** *(Completed)*
+    *   ✅ Initialize a Git repository.
+2.  **✅ Project Scaffolding:** *(Completed)*
+    *   ✅ Initialize a Vue 3 project with Vite for optimal development experience.
+    *   ✅ Configure TypeScript for type safety across all architecture layers.
+    *   ✅ Install and configure Supabase JavaScript client for external service integration.
+    *   ✅ Set up Pinia for state management and Vue Router for navigation.
+    *   ✅ Configure dependency injection system for hexagonal architecture.
+3.  **✅ Supabase Setup:** *(Completed)*
+    *   ✅ Create Supabase project and configure environment variables.
+    *   ⏭️ Set up local development environment with Supabase CLI. *(Skipped - using cloud only)*
+4.  **✅ Tooling Setup:** *(Completed)*
+    *   ✅ Set up testing frameworks (Vitest, Playwright) for the frontend project.
+    *   ✅ Configure ESLint and Prettier for automated linting and formatting.
 5.  **Database Schema Setup:**
     *   Create database tables based on YAML entity definitions in `docs/entities`: `users`, `user_profiles`, `cards`, `collections`, `cart_items`, `purchases`, `sales`, and `messages`.
     *   Configure Row Level Security (RLS) policies for data protection.
