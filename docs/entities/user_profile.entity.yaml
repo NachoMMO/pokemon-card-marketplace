@@ -1,6 +1,6 @@
 # UserProfile Entity Definition
 entity: UserProfile
-description: Extended profile information for users
+description: Extended profile information for users (integrates with Supabase Auth)
 table: user_profiles
 
 fields:
@@ -12,14 +12,75 @@ fields:
     
   - name: userId
     type: UUID
-    foreign_key: users.id
+    foreign_key: auth.users.id
     unique: true
     required: true
-    description: ID of the user this profile belongs to
+    description: ID of the Supabase Auth user this profile belongs to
+    
+  # Core user information (moved from users table)
+  - name: firstName
+    type: String
+    max_length: 50
+    min_length: 2
+    required: true
+    description: User's first name
+    
+  - name: lastName
+    type: String
+    max_length: 50
+    min_length: 2
+    required: true
+    description: User's last name
+    
+  - name: dateOfBirth
+    type: Date
+    description: User's date of birth
+    
+  - name: address
+    type: String
+    max_length: 200
+    description: User's street address
+    
+  - name: city
+    type: String
+    max_length: 100
+    description: User's city
+    
+  - name: postalCode
+    type: String
+    max_length: 20
+    description: User's postal code
+    
+  - name: country
+    type: String
+    max_length: 100
+    description: User's country
+    
+  - name: balance
+    type: Decimal
+    precision: 10
+    scale: 2
+    default: 0.00
+    minimum: 0
+    description: User's account balance
+    
+  - name: role
+    type: Enum
+    values: [buyer, seller, admin]
+    default: buyer
+    description: User's role in the system
+    
+  # Profile-specific fields
+  - name: displayName
+    type: String
+    max_length: 50
+    unique: true
+    required: true
+    description: User's public display name
     
   - name: avatarUrl
     type: String
-    max_length: 500
+    max_length: 255
     format: url
     description: URL to user's avatar image
     
@@ -33,63 +94,46 @@ fields:
     max_length: 100
     description: User's general location
     
-  - name: favoriteCardType
-    type: Enum
-    values: [Fire, Water, Grass, Electric, Psychic, Fighting, Darkness, Steel, Fairy, Dragon, Colorless]
-    description: User's favorite Pokemon card type
+  - name: website
+    type: String
+    max_length: 255
+    format: url
+    description: User's website URL
     
-  - name: tradingPreferences
+  - name: socialMediaLinks
     type: JSON
-    description: User's trading preferences and settings
+    default: {}
+    description: User's social media links
     
-  - name: isPublic
-    type: Boolean
-    default: true
-    description: Whether the profile is publicly visible
-    
-  - name: allowMessages
-    type: Boolean
-    default: true
-    description: Whether user accepts private messages
-    
-  - name: showCollection
-    type: Boolean
-    default: true
-    description: Whether to show collection to other users
-    
-  - name: showTradeList
-    type: Boolean
-    default: true
-    description: Whether to show cards available for trade
+  # Trading-related fields
+  - name: tradingReputation
+    type: Integer
+    default: 0
+    minimum: 0
+    description: User's trading reputation score
     
   - name: totalTrades
     type: Integer
     default: 0
     minimum: 0
-    description: Total number of completed trades
+    description: Total number of trades completed
     
-  - name: rating
-    type: Decimal
-    precision: 3
-    scale: 2
-    minimum: 0
-    maximum: 5
-    description: User's average rating from other users
-    
-  - name: ratingCount
+  - name: successfulTrades
     type: Integer
     default: 0
     minimum: 0
-    description: Number of ratings received
+    description: Number of successful trades
     
-  - name: joinedDate
-    type: Date
-    auto_generate: true
-    description: When the user joined the platform
+  # Settings fields
+  - name: privacySettings
+    type: JSON
+    default: '{"profile_public": true, "collection_public": false, "trade_history_public": false}'
+    description: User's privacy preferences
     
-  - name: lastActiveAt
-    type: DateTime
-    description: When the user was last active
+  - name: notificationPreferences
+    type: JSON
+    default: '{"email_notifications": true, "push_notifications": true, "trade_updates": true}'
+    description: User's notification preferences
     
   - name: createdAt
     type: DateTime
@@ -106,31 +150,30 @@ relationships:
     type: belongs_to
     target: User
     foreign_key: user_id
-    description: User this profile belongs to
+    references: auth.users.id
+    description: The Supabase Auth user this profile belongs to
 
 indexes:
   - fields: [user_id]
     unique: true
-  - fields: [is_public]
-  - fields: [rating]
-  - fields: [total_trades]
-  - fields: [last_active_at]
+  - fields: [display_name]
+    unique: true
+  - fields: [role]
+  - fields: [trading_reputation]
+  - fields: [created_at]
 
 business_rules:
   - name: one_profile_per_user
-    description: Each user can have only one profile
+    description: Each Supabase Auth user can have only one profile
     
-  - name: public_visibility
-    description: Non-public profiles are only visible to the owner
+  - name: unique_display_name
+    description: Display names must be unique across all users
     
-  - name: rating_validation
-    description: Rating must be between 0 and 5 with 2 decimal places
+  - name: positive_balance
+    description: User balance cannot be negative
     
-  - name: bio_content_filter
-    description: Bio content must be appropriate and filtered
+  - name: reputation_calculation
+    description: Trading reputation is calculated based on successful trades
     
-  - name: avatar_size_limit
-    description: Avatar images must be under 2MB
-    
-  - name: location_privacy
-    description: Location should be general, not specific address
+  - name: supabase_integration
+    description: Profile must reference valid Supabase Auth user

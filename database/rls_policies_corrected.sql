@@ -1,43 +1,19 @@
--- Row Level Security (RLS) Policies
+-- Row Level Security (RLS) Policies - CORRECTED VERSION
 -- Execute this AFTER creating the schema
 -- These policies ensure users can only access their own data
 
 -- ====================
 -- ENABLE RLS ON ALL TABLES
 -- ====================
+-- NOTE: We don't enable RLS on auth.users because it's managed by Supabase Auth
 
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cards ENABLE ROW LEVEL SECURITY;
-ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE collection_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE purchases ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sales ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
-
--- ====================
--- USERS TABLE POLICIES
--- ====================
-
--- Users can view their own profile
-CREATE POLICY "Users can view own profile" ON users
-  FOR SELECT USING (auth.uid() = id);
-
--- Users can update their own profile (except role)
-CREATE POLICY "Users can update own profile" ON users
-  FOR UPDATE USING (auth.uid() = id);
-
--- New users can insert their profile during registration
-CREATE POLICY "Users can insert own profile" ON users
-  FOR INSERT WITH CHECK (auth.uid() = id);
-
--- Admins can view all users
-CREATE POLICY "Admins can view all users" ON users
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
 
 -- ====================
 -- USER_PROFILES TABLE POLICIES
@@ -50,7 +26,7 @@ CREATE POLICY "Users can view own user_profile" ON user_profiles
 -- Users can view public profiles
 CREATE POLICY "Users can view public profiles" ON user_profiles
   FOR SELECT USING (
-    (privacy_settings->>'profile_public')::boolean = true
+    (privacy_settings->>'profilePublic')::boolean = true
   );
 
 -- Users can update their own profile
@@ -73,30 +49,24 @@ CREATE POLICY "Anyone can view available cards" ON cards
 CREATE POLICY "Admins can manage cards" ON cards
   FOR ALL USING (
     EXISTS (
-      SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
+      SELECT 1 FROM user_profiles WHERE user_id = auth.uid() AND role = 'admin'
     )
   );
 
 -- ====================
--- COLLECTIONS TABLE POLICIES
+-- COLLECTION_ENTRIES TABLE POLICIES
 -- ====================
 
--- Users can view their own collection
-CREATE POLICY "Users can view own collection" ON collections
+-- Users can view their own collection entries
+CREATE POLICY "Users can view own collection entries" ON collection_entries
   FOR SELECT USING (auth.uid() = user_id);
 
--- Users can view public collections
-CREATE POLICY "Users can view public collections" ON collections
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM user_profiles up 
-      WHERE up.user_id = collections.user_id 
-      AND (up.privacy_settings->>'collection_public')::boolean = true
-    )
-  );
+-- Users can view collection entries that are marked for trade
+CREATE POLICY "Users can view tradeable collection entries" ON collection_entries
+  FOR SELECT USING (is_for_trade = true);
 
--- Users can manage their own collection
-CREATE POLICY "Users can manage own collection" ON collections
+-- Users can manage their own collection entries
+CREATE POLICY "Users can manage own collection entries" ON collection_entries
   FOR ALL USING (auth.uid() = user_id);
 
 -- ====================
@@ -129,7 +99,7 @@ CREATE POLICY "Sellers can update purchase status" ON purchases
 CREATE POLICY "Admins can view all purchases" ON purchases
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
+      SELECT 1 FROM user_profiles WHERE user_id = auth.uid() AND role = 'admin'
     )
   );
 
@@ -168,7 +138,7 @@ CREATE POLICY "Users can update sent messages" ON messages
   FOR UPDATE USING (auth.uid() = sender_id AND is_read = false);
 
 -- ====================
--- ADDITIONAL SECURITY FUNCTIONS
+-- HELPER FUNCTIONS
 -- ====================
 
 -- Function to check if user has admin role
@@ -176,8 +146,8 @@ CREATE OR REPLACE FUNCTION is_admin()
 RETURNS BOOLEAN AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM users 
-    WHERE id = auth.uid() AND role = 'admin'
+    SELECT 1 FROM user_profiles 
+    WHERE user_id = auth.uid() AND role = 'admin'
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -195,29 +165,7 @@ BEGIN
   RETURN EXISTS (
     SELECT 1 FROM user_profiles 
     WHERE user_id = target_user_id 
-    AND (privacy_settings->>'collection_public')::boolean = true
+    AND (privacy_settings->>'collectionPublic')::boolean = true
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Function to validate card stock before purchase
-CREATE OR REPLACE FUNCTION validate_card_stock()
-RETURNS TRIGGER AS $$
-BEGIN
-  -- Check if enough stock is available
-  IF NOT EXISTS (
-    SELECT 1 FROM cards 
-    WHERE id = NEW.card_id 
-    AND stock >= NEW.quantity
-  ) THEN
-    RAISE EXCEPTION 'Insufficient stock for card %', NEW.card_id;
-  END IF;
-  
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Apply stock validation trigger to cart items
-CREATE TRIGGER validate_cart_stock 
-  BEFORE INSERT OR UPDATE ON cart_items
-  FOR EACH ROW EXECUTE FUNCTION validate_card_stock();

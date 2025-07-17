@@ -2,62 +2,99 @@
 
 The entities represent the main data models of the Pokemon Card Marketplace system. Each entity defines the structure, properties, and relationships of objects managed by the application using Supabase PostgreSQL with Row Level Security (RLS).
 
+**Important Note:** User authentication and core user data is managed by Supabase Auth (`auth.users` table). Extended user information is stored in the `user_profiles` table that references Supabase Auth users.
+
 ## 📋 Entity List
 
-| Entity | File | Description | Supabase Integration |
+| Entity | File | Description | Implementation |
 |---------|---------|-------------|---------------------|
-| **User** | [user.entity.md](./user.entity.md) | System users (buyers, sellers, admins) | Supabase Auth + Custom table |
-| **Card** | [card.entity.md](./card.entity.md) | Pokemon cards available for trading | PostgreSQL with image storage |
-| **Message** | [message.entity.md](./message.entity.md) | Private messages between users | Real-time with Supabase Realtime |
-| **Purchase** | [purchase.entity.md](./purchase.entity.md) | Purchase transactions | PostgreSQL with RLS |
-| **Sale** | [sale.entity.md](./sale.entity.md) | Sale transactions | PostgreSQL with RLS |
-| **CollectionEntry** | [collection.entity.yaml](./collection.entity.yaml) | Individual card entries in user collections | PostgreSQL with RLS |
-| **CartItem** | [cart_item.entity.md](./cart_item.entity.md) | Shopping cart items | PostgreSQL with RLS |
-| **UserProfile** | [user_profile.entity.md](./user_profile.entity.md) | Extended user profile information | PostgreSQL with Supabase Storage |
+| **User** | [user.entity.yaml](./user.entity.yaml) | Core user data (managed by Supabase Auth) | `User.ts` - Auth entity |
+| **UserProfile** | [user_profile.entity.yaml](./user_profile.entity.yaml) | Extended user profile information | `UserProfile.ts` - Profile data entity |
+| **Card** | [card.entity.yaml](./card.entity.yaml) | Pokemon cards available for trading | `Card.ts` - Product entity |
+| **CollectionEntry** | [collection.entity.yaml](./collection.entity.yaml) | Individual card entries in user collections | `CollectionEntry.ts` - Collection item entity |
+| **CartItem** | [cart_item.entity.yaml](./cart_item.entity.yaml) | Shopping cart items | `CartItem.ts` - Transient entity |
+| **Purchase** | [purchase.entity.yaml](./purchase.entity.yaml) | Purchase transactions | `Purchase.ts` - Transaction entity |
+| **Sale** | [sale.entity.yaml](./sale.entity.yaml) | Sale transactions | `Sale.ts` - Transaction entity |
+| **Message** | [message.entity.yaml](./message.entity.yaml) | Private messages between users | `Message.ts` - Communication entity |
 
-## Entity Relationships (Supabase PostgreSQL Schema)
+## Domain Model Overview
+
+The domain entities are implemented following **Domain-Driven Design (DDD)** principles with clear separation between:
+
+### 🔐 **Authentication Layer (Supabase Auth)**
+- **User**: Core authentication data managed by Supabase Auth
+- Handles: email, password, verification, sessions
+
+### 👤 **Business Layer (Our Domain)**  
+- **UserProfile**: Extended user information and business logic
+- **CompleteUser**: Aggregate that combines auth + profile data
+- Handles: business rules, validation, domain logic
+
+### 🎴 **Trading Layer**
+- **Card**: Pokemon card master data
+- **Collection**: Named collections of cards
+- **CollectionEntry**: Individual card ownership records
+- **Sale**: Cards available for purchase
+- **CartItem**: Shopping cart line items
+- **Purchase**: Completed transactions
+- **Message**: User communication
+
+## Entity Relationships (Updated Schema)
 
 ```mermaid
 erDiagram
-    SUPABASE_AUTH_USER ||--|| USER : "extends"
-    USER ||--o{ CARD : "sells"
-    USER ||--o{ CART_ITEM : "has"
-    USER ||--o{ PURCHASE : "makes"
-    USER ||--o{ SALE : "receives"
-    USER ||--o{ COLLECTION_ENTRY : "owns"
-    USER ||--o{ MESSAGE : "sends/receives"
-    USER ||--|| USER_PROFILE : "has"
+    SUPABASE_AUTH_USER ||--|| USER_PROFILE : "has"
+    SUPABASE_AUTH_USER ||--o{ COLLECTION : "owns"
+    SUPABASE_AUTH_USER ||--o{ COLLECTION_ENTRY : "owns"
+    SUPABASE_AUTH_USER ||--o{ CART_ITEM : "has"
+    SUPABASE_AUTH_USER ||--o{ PURCHASE : "makes"
+    SUPABASE_AUTH_USER ||--o{ SALE : "creates"
+    SUPABASE_AUTH_USER ||--o{ MESSAGE : "sends/receives"
+    SUPABASE_AUTH_USER ||--o{ COLLECTION_ENTRY : "owns"
     
+    CARD ||--o{ COLLECTION_ENTRY : "collected_as"
     CARD ||--o{ CART_ITEM : "in"
     CARD ||--o{ PURCHASE : "purchased"
     CARD ||--o{ SALE : "sold"
-    CARD ||--o{ COLLECTION_ENTRY : "collected"
     
-    PURCHASE ||--|| SALE : "creates"
+    PURCHASE ||--|| SALE : "completes"
     
     SUPABASE_AUTH_USER {
         uuid id PK "Supabase Auth managed"
-        string email UK "Supabase Auth managed"
-        string password "Supabase Auth managed"
+        string email UK "Supabase Auth managed" 
         boolean email_confirmed "Supabase Auth managed"
         timestamp created_at "Supabase Auth managed"
         timestamp updated_at "Supabase Auth managed"
     }
     
-    USER {
-        uuid id PK "FK to Supabase Auth"
-        string firstName
-        string lastName
-        date dateOfBirth
-        string address
-        string city
-        string postalCode
-        string country
+    USER_PROFILE {
+        uuid id PK
+        uuid user_id FK "References auth.users.id"
+        string first_name
+        string last_name
+        string display_name UK
         decimal balance
         enum role
-        boolean isActive
-        datetime createdAt "Supabase managed"
-        datetime updatedAt "Supabase managed"
+        integer trading_reputation
+        json privacy_settings
+        json notification_preferences
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    COLLECTION_ENTRY {
+        uuid id PK
+        uuid user_id FK "References auth.users.id"
+        uuid card_id FK "References cards.id"
+        integer quantity
+        enum condition
+        date acquired_date
+        decimal acquired_price
+        decimal current_value
+        boolean is_for_trade
+        text notes
+        timestamp created_at
+        timestamp updated_at
     }
     
     CARD {

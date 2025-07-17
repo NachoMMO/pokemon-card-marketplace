@@ -1,7 +1,7 @@
 # Collection Entry Entity Definition
 entity: CollectionEntry
 description: Represents a single card entry in a user's collection (many-to-many relationship table)
-table: collections
+table: collection_entries
 
 fields:
   - name: id

@@ -147,15 +147,27 @@ The project will follow a **layer-specific TDD approach** that respects the hexa
 │   ├── App.vue                    # Root component
 │   ├── domain/                    # THE HEXAGON (pure business logic)
 │   │   ├── entities/              # Business entities with rules
-│   │   │   ├── User.ts            # User entity
-│   │   │   ├── Card.ts            # Card entity
-│   │   │   ├── Purchase.ts        # Purchase entity
+│   │   │   ├── User.ts            # Supabase Auth user entity (simplified)
+│   │   │   ├── UserProfile.ts     # Extended user profile with business logic
+│   │   │   ├── CompleteUser.ts    # Aggregate combining User + UserProfile
+│   │   │   ├── Card.ts            # Pokemon card entity
+│   │   │   ├── CollectionEntry.ts # Individual card entries in collection
+│   │   │   ├── CollectionEntry.ts # Individual card ownership records
+│   │   │   ├── Purchase.ts        # Purchase transaction entity
+│   │   │   ├── Sale.ts            # Sale listing entity
+│   │   │   ├── CartItem.ts        # Shopping cart item entity
+│   │   │   ├── Message.ts         # User messaging entity
 │   │   │   └── index.ts           # Entity exports
 │   │   ├── use-cases/             # Application-specific business rules
-│   │   │   ├── user/              # User-related use cases
-│   │   │   │   ├── CreateUser.ts
-│   │   │   │   ├── AuthenticateUser.ts
-│   │   │   │   └── UpdateUserProfile.ts
+│   │   │   ├── auth/              # Authentication use cases
+│   │   │   │   ├── RegisterUser.ts        # Register with Supabase + create profile
+│   │   │   │   ├── LoginUser.ts           # Login via Supabase Auth
+│   │   │   │   └── LogoutUser.ts          # Logout and cleanup
+│   │   │   ├── profile/           # User profile use cases
+│   │   │   │   ├── CreateUserProfile.ts   # Create profile after auth
+│   │   │   │   ├── UpdateUserProfile.ts   # Update profile data
+│   │   │   │   ├── GetUserProfile.ts      # Retrieve profile data
+│   │   │   │   └── ManageBalance.ts       # Handle user balance operations
 │   │   │   ├── card/              # Card-related use cases
 │   │   │   │   ├── SearchCards.ts
 │   │   │   │   ├── AddCardToCart.ts
@@ -170,26 +182,44 @@ The project will follow a **layer-specific TDD approach** that respects the hexa
 │   │   ├── ports/
 │   │   │   ├── driving/           # Inbound port interfaces
 │   │   │   │   ├── use-cases/     # Use case interfaces
-│   │   │   │   │   ├── ICreateUser.ts
-│   │   │   │   │   ├── ISearchCards.ts
-│   │   │   │   │   └── IPurchaseCards.ts
+│   │   │   │   │   ├── auth/      # Authentication contracts
+│   │   │   │   │   │   ├── IRegisterUser.ts
+│   │   │   │   │   │   ├── ILoginUser.ts
+│   │   │   │   │   │   └── ILogoutUser.ts
+│   │   │   │   │   ├── profile/   # Profile management contracts
+│   │   │   │   │   │   ├── ICreateUserProfile.ts
+│   │   │   │   │   │   ├── IUpdateUserProfile.ts
+│   │   │   │   │   │   └── IGetCompleteUser.ts
+│   │   │   │   │   ├── cards/     # Card management contracts
+│   │   │   │   │   │   ├── ISearchCards.ts
+│   │   │   │   │   │   └── IManageCollection.ts
+│   │   │   │   │   └── trading/   # Trading contracts
+│   │   │   │   │       ├── IPurchaseCards.ts
+│   │   │   │   │       └── IManageCart.ts
 │   │   │   │   └── queries/       # Query interfaces
 │   │   │   │       ├── IUserQueries.ts
+│   │   │   │       ├── IProfileQueries.ts
 │   │   │   │       └── ICardQueries.ts
 │   │   │   └── driven/            # Outbound port interfaces
 │   │   │       ├── repositories/  # Storage contracts
-│   │   │       │   ├── IUserRepository.ts
+│   │   │       │   ├── IUserRepository.ts          # Supabase Auth user data
+│   │   │       │   ├── IUserProfileRepository.ts   # User profile storage
 │   │   │       │   ├── ICardRepository.ts
+│   │   │       │   ├── ICollectionRepository.ts
+│   │   │       │   ├── ICollectionEntryRepository.ts
 │   │   │       │   └── IPurchaseRepository.ts
 │   │   │       ├── services/      # External service contracts
-│   │   │       │   ├── IAuthService.ts
+│   │   │       │   ├── ISupabaseAuthService.ts     # Supabase auth integration
 │   │   │       │   ├── IStorageService.ts
 │   │   │       │   └── INotificationService.ts
 │   │   │       └── events/        # Event publishing contracts
 │   │   │           └── IEventPublisher.ts
 │   │   └── dto/                   # Data transfer objects
-│   │       ├── UserDTO.ts
+│   │       ├── AuthDTO.ts         # Authentication data transfer
+│   │       ├── UserProfileDTO.ts  # User profile data transfer
+│   │       ├── CompleteUserDTO.ts # Complete user data transfer
 │   │       ├── CardDTO.ts
+│   │       ├── CollectionDTO.ts
 │   │       └── PurchaseDTO.ts
 │   ├── infrastructure/            # ADAPTERS (implementations)
 │   │   ├── driving/               # Inbound adapters
@@ -207,11 +237,13 @@ The project will follow a **layer-specific TDD approach** that respects the hexa
 │   │   │       └── guards.ts
 │   │   ├── driven/                # Outbound adapters
 │   │   │   ├── repositories/      # Repository implementations
-│   │   │   │   ├── SupabaseUserRepository.ts
+│   │   │   │   ├── SupabaseAuthUserRepository.ts      # Supabase auth user operations
+│   │   │   │   ├── SupabaseUserProfileRepository.ts   # User profile repository
 │   │   │   │   ├── SupabaseCardRepository.ts
+│   │   │   │   ├── SupabaseCollectionRepository.ts
 │   │   │   │   └── SupabasePurchaseRepository.ts
 │   │   │   ├── services/          # Service implementations
-│   │   │   │   ├── SupabaseAuthService.ts
+│   │   │   │   ├── SupabaseAuthService.ts      # Supabase auth integration
 │   │   │   │   ├── SupabaseStorageService.ts
 │   │   │   │   └── SupabaseRealtimeService.ts
 │   │   │   └── api/               # API client configurations

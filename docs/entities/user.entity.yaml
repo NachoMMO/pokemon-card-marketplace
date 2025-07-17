@@ -1,52 +1,41 @@
 # User Entity Definition
-entity: User
-description: Represents a user in the Pokemon card trading system
-table: users
+# NOTE: This entity is now managed by Supabase Auth
+# Users are stored in auth.users table, not a custom users table
+# This definition is kept for reference and user_profiles table design
 
-fields:
+entity: User
+description: Represents a user in the Pokemon card trading system (managed by Supabase Auth)
+table: auth.users  # Supabase managed table
+note: "This entity is managed by Supabase Authentication. User data is stored in auth.users table. Extended user information is stored in user_profiles table."
+
+# Core fields managed by Supabase Auth:
+auth_fields:
   - name: id
     type: UUID
     primary_key: true
     required: true
-    description: Unique identifier for the user
-    
-  - name: firstName
-    type: String
-    max_length: 50
-    min_length: 2
-    required: true
-    validation:
-      - not_empty
-      - alpha_spaces_only
-    description: User's first name
-    
-  - name: lastName
-    type: String
-    max_length: 50
-    min_length: 2
-    required: true
-    validation:
-      - not_empty
-      - alpha_spaces_only
-    description: User's last name
+    description: Unique identifier for the user (managed by Supabase)
     
   - name: email
     type: String
     format: email
     unique: true
     required: true
-    validation:
-      - email_format
-    description: User's email address
+    description: User's email address (managed by Supabase Auth)
     
-  - name: password
-    type: String
-    min_length: 8
-    required: true
-    encrypted: true
-    validation:
-      - strong_password
-    description: User's encrypted password
+  - name: email_confirmed_at
+    type: DateTime
+    description: When email was confirmed (managed by Supabase)
+    
+  - name: created_at
+    type: DateTime
+    description: User creation timestamp (managed by Supabase)
+    
+  - name: updated_at
+    type: DateTime
+    description: Last update timestamp (managed by Supabase)
+
+# Extended fields stored in user_profiles table:
     
   - name: dateOfBirth
     type: Date
@@ -58,25 +47,55 @@ fields:
     type: String
     max_length: 200
     description: User's street address
+# Extended fields stored in user_profiles table:
+extended_fields:
+  - name: firstName
+    type: String
+    max_length: 50
+    min_length: 2
+    required: true
+    validation:
+      - not_empty
+      - alpha_spaces_only
+    description: User's first name (stored in user_profiles)
+    
+  - name: lastName
+    type: String
+    max_length: 50
+    min_length: 2
+    required: true
+    validation:
+      - not_empty
+      - alpha_spaces_only
+    description: User's last name (stored in user_profiles)
+    
+  - name: dateOfBirth
+    type: Date
+    description: User's date of birth (stored in user_profiles)
+    
+  - name: address
+    type: String
+    max_length: 200
+    description: User's address (stored in user_profiles)
     
   - name: city
     type: String
     max_length: 100
-    description: User's city
+    description: User's city (stored in user_profiles)
     
   - name: postalCode
     type: String
     max_length: 20
     validation:
       - postal_code_format
-    description: User's postal code
+    description: User's postal code (stored in user_profiles)
     
   - name: country
     type: String
     max_length: 100
     validation:
       - country_name
-    description: User's country
+    description: User's country (stored in user_profiles)
     
   - name: balance
     type: Decimal
@@ -84,13 +103,13 @@ fields:
     scale: 2
     default: 0.00
     minimum: 0
-    description: User's account balance
+    description: User's account balance (stored in user_profiles)
     
   - name: role
     type: Enum
     values: [buyer, seller, admin]
     default: buyer
-    description: User's role in the system
+    description: User's role in the system (stored in user_profiles)
     
   - name: isActive
     type: Boolean
@@ -155,26 +174,31 @@ relationships:
     foreign_key: recipient_id
     description: Messages received by user
 
-indexes:
-  - fields: [email]
-    unique: true
-  - fields: [role]
-  - fields: [createdAt]
-  - fields: [isActive]
-  - fields: [balance]
+# Note: Indexes are managed differently now
+# Auth-related indexes are handled by Supabase
+# User profile indexes are defined in user_profiles table
+supabase_auth_integration:
+  authentication: "Managed by Supabase Auth"
+  user_management: "Core user data in auth.users, extended data in user_profiles"
+  session_management: "Handled by Supabase Auth"
+  password_reset: "Handled by Supabase Auth"
+  email_verification: "Handled by Supabase Auth"
 
 business_rules:
-  - name: unique_email
-    description: Email must be unique across all users
+  - name: supabase_auth_integration
+    description: User authentication and core data managed by Supabase Auth
+    
+  - name: profile_completion
+    description: Users should complete their profile in user_profiles table after registration
     
   - name: minimum_age
-    description: User must be at least 13 years old
+    description: User must be at least 13 years old (enforced in application logic)
     
   - name: positive_balance
-    description: User balance cannot be negative
+    description: User balance cannot be negative (enforced in user_profiles table)
     
   - name: role_permissions
-    description: Role determines what actions user can perform
+    description: Role determines what actions user can perform (stored in user_profiles)
     
   - name: verified_email_for_selling
-    description: Users must verify email before selling cards
+    description: Users must verify email before selling cards (checked via Supabase auth.users.email_confirmed_at)

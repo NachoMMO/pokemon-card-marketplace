@@ -79,15 +79,26 @@ The goal of this phase is to establish the project structure, development enviro
     *   ✅ Set up testing frameworks (Vitest, Playwright) for the frontend project.
     *   ✅ Configure ESLint and Prettier for automated linting and formatting.
 5.  **✅ Database Schema Setup:** *(Completed)*
-    *   ✅ Create database tables based on YAML entity definitions in `docs/entities`: `users`, `user_profiles`, `cards`, `collections`, `cart_items`, `purchases`, `sales`, and `messages`.
+    *   ✅ Create database tables based on YAML entity definitions in `docs/entities`: `user_profiles` (users managed by Supabase Auth), `cards`, `collections`, `cart_items`, `purchases`, `sales`, and `messages`.
     *   ✅ Configure Row Level Security (RLS) policies for data protection.
     *   ✅ Set up database relationships and constraints.
     *   ✅ Create database functions for complex queries and business logic.
 6.  **🔄 Hexagonal Architecture Foundation:** *(In Progress)*
     *   ✅ Configure dependency injection and inversion of control patterns.
-    *   🔄 Set up domain layer structure with entities and use cases.
+    *   ✅ Set up domain layer structure with entities and use cases.
+        - ✅ User.ts (Supabase Auth entity)
+        - ✅ UserProfile.ts (Business logic entity) 
+        - ✅ CompleteUser.ts (Domain aggregate)
+        - ✅ Card.ts, CollectionEntry.ts
+        - ✅ Purchase.ts, Sale.ts, CartItem.ts, Message.ts
     *   🔄 Create application layer with port interfaces for repositories and services.
+        - 🔄 IUserRepository, IUserProfileRepository interfaces
+        - 🔄 ISupabaseAuthService interface
+        - 🔄 Use case interfaces (ICreateUserProfile, ILoginUser, etc.)
     *   🔄 Implement infrastructure layer with Supabase adapter implementations.
+        - 🔄 SupabaseAuthUserRepository implementation
+        - 🔄 SupabaseUserProfileRepository implementation
+        - 🔄 SupabaseAuthService implementation
 
 ### Phase 2: Feature Development (Iterative TDD Cycles)
 

@@ -1,16 +1,21 @@
 -- Pokemon Card Marketplace Database Schema
 -- Generated from YAML entity definitions in docs/entities/
 -- Execute this in Supabase SQL Editor
+-- ====================
+-- NOTE: USER MANAGEMENT
+-- ====================
+-- Users are managed by Supabase Auth in the auth.users table
+-- We reference auth.uid() in our tables instead of creating a custom users table
+-- This follows Supabase best practices for authentication integration
 
 -- ====================
--- 1. USERS TABLE
+-- 1. USER_PROFILES TABLE (Extended user information)
 -- ====================
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS user_profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   first_name VARCHAR(50) NOT NULL CHECK (length(first_name) >= 2),
   last_name VARCHAR(50) NOT NULL CHECK (length(last_name) >= 2),
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL, -- Supabase Auth will handle this
   date_of_birth DATE,
   address VARCHAR(200),
   city VARCHAR(100),
@@ -18,19 +23,6 @@ CREATE TABLE IF NOT EXISTS users (
   country VARCHAR(100),
   balance DECIMAL(10,2) DEFAULT 0.00 CHECK (balance >= 0),
   role VARCHAR(20) DEFAULT 'buyer' CHECK (role IN ('buyer', 'seller', 'admin')),
-  is_active BOOLEAN DEFAULT true,
-  email_verified BOOLEAN DEFAULT false,
-  phone VARCHAR(20),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- ====================
--- 2. USER_PROFILES TABLE
--- ====================
-CREATE TABLE IF NOT EXISTS user_profiles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   display_name VARCHAR(50) UNIQUE NOT NULL,
   bio TEXT,
   avatar_url VARCHAR(255),
@@ -47,7 +39,8 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 );
 
 -- ====================
--- 3. CARDS TABLE
+-- ====================
+-- 2. CARDS TABLE (Pokémon cards master data)
 -- ====================
 CREATE TABLE IF NOT EXISTS cards (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -75,11 +68,11 @@ CREATE TABLE IF NOT EXISTS cards (
 );
 
 -- ====================
--- 4. COLLECTIONS TABLE (Collection Entries - User-Card Many-to-Many)
+-- 3. COLLECTION_ENTRIES TABLE (Individual cards in user collections)
 -- ====================
-CREATE TABLE IF NOT EXISTS collections (
+CREATE TABLE IF NOT EXISTS collection_entries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   card_id UUID NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
   quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity >= 1),
   condition VARCHAR(20) DEFAULT 'Near_Mint' CHECK (condition IN ('Mint', 'Near_Mint', 'Excellent', 'Good', 'Light_Played', 'Played', 'Poor')),
@@ -94,17 +87,17 @@ CREATE TABLE IF NOT EXISTS collections (
 );
 
 -- ====================
--- 5. CART_ITEMS TABLE
+-- 4. CART_ITEMS TABLE
 -- ====================
 CREATE TABLE IF NOT EXISTS cart_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   card_id UUID NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
   quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity >= 1),
   unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price >= 0),
   total_price DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
   condition VARCHAR(20) DEFAULT 'Near_Mint' CHECK (condition IN ('Mint', 'Near_Mint', 'Excellent', 'Good', 'Light_Played', 'Played', 'Poor')),
-  seller_id UUID REFERENCES users(id),
+  seller_id UUID REFERENCES auth.users(id),
   notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -112,12 +105,12 @@ CREATE TABLE IF NOT EXISTS cart_items (
 );
 
 -- ====================
--- 6. PURCHASES TABLE
+-- 5. PURCHASES TABLE
 -- ====================
 CREATE TABLE IF NOT EXISTS purchases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  buyer_id UUID NOT NULL REFERENCES users(id),
-  seller_id UUID NOT NULL REFERENCES users(id),
+  buyer_id UUID NOT NULL REFERENCES auth.users(id),
+  seller_id UUID NOT NULL REFERENCES auth.users(id),
   total_amount DECIMAL(10,2) NOT NULL CHECK (total_amount >= 0),
   payment_method VARCHAR(50),
   payment_status VARCHAR(20) DEFAULT 'pending' CHECK (payment_status IN ('pending', 'completed', 'failed', 'refunded')),
@@ -133,11 +126,11 @@ CREATE TABLE IF NOT EXISTS purchases (
 );
 
 -- ====================
--- 7. SALES TABLE
+-- 6. SALES TABLE
 -- ====================
 CREATE TABLE IF NOT EXISTS sales (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  seller_id UUID NOT NULL REFERENCES users(id),
+  seller_id UUID NOT NULL REFERENCES auth.users(id),
   card_id UUID NOT NULL REFERENCES cards(id),
   quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity >= 1),
   unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price >= 0),
@@ -153,12 +146,12 @@ CREATE TABLE IF NOT EXISTS sales (
 );
 
 -- ====================
--- 8. MESSAGES TABLE
+-- 7. MESSAGES TABLE
 -- ====================
 CREATE TABLE IF NOT EXISTS messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  sender_id UUID NOT NULL REFERENCES users(id),
-  recipient_id UUID NOT NULL REFERENCES users(id),
+  sender_id UUID NOT NULL REFERENCES auth.users(id),
+  recipient_id UUID NOT NULL REFERENCES auth.users(id),
   subject VARCHAR(200),
   content TEXT NOT NULL CHECK (length(content) >= 1),
   message_type VARCHAR(20) DEFAULT 'private' CHECK (message_type IN ('private', 'trade_inquiry', 'support', 'system')),
@@ -178,14 +171,10 @@ CREATE TABLE IF NOT EXISTS messages (
 -- INDEXES FOR PERFORMANCE
 -- ====================
 
--- Users
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
-CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active);
-
 -- User Profiles
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON user_profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_display_name ON user_profiles(display_name);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_role ON user_profiles(role);
 
 -- Cards
 CREATE INDEX IF NOT EXISTS idx_cards_name ON cards(name);
@@ -195,10 +184,10 @@ CREATE INDEX IF NOT EXISTS idx_cards_expansion ON cards(expansion);
 CREATE INDEX IF NOT EXISTS idx_cards_price ON cards(price);
 CREATE INDEX IF NOT EXISTS idx_cards_available ON cards(is_available);
 
--- Collections (Collection Entries)
-CREATE INDEX IF NOT EXISTS idx_collections_user_id ON collections(user_id);
-CREATE INDEX IF NOT EXISTS idx_collections_card_id ON collections(card_id);
-CREATE INDEX IF NOT EXISTS idx_collections_for_trade ON collections(is_for_trade);
+-- Collection Entries
+CREATE INDEX IF NOT EXISTS idx_collection_entries_user_id ON collection_entries(user_id);
+CREATE INDEX IF NOT EXISTS idx_collection_entries_card_id ON collection_entries(card_id);
+CREATE INDEX IF NOT EXISTS idx_collection_entries_for_trade ON collection_entries(is_for_trade);
 
 -- Cart Items
 CREATE INDEX IF NOT EXISTS idx_cart_items_user_id ON cart_items(user_id);
@@ -235,10 +224,9 @@ END;
 $$ language 'plpgsql';
 
 -- Apply triggers to all tables with updated_at column
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE ON user_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_cards_updated_at BEFORE UPDATE ON cards FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_collections_updated_at BEFORE UPDATE ON collections FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_collection_entries_updated_at BEFORE UPDATE ON collection_entries FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_cart_items_updated_at BEFORE UPDATE ON cart_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_purchases_updated_at BEFORE UPDATE ON purchases FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_sales_updated_at BEFORE UPDATE ON sales FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

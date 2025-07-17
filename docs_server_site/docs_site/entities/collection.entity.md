@@ -1,6 +1,6 @@
-# Collection Entity Definition
-entity: Collection
-description: Represents a user's card collection (many-to-many relationship table)
+# Collection Entry Entity Definition
+entity: CollectionEntry
+description: Represents a single card entry in a user's collection (many-to-many relationship table)
 table: collections
 
 fields:
