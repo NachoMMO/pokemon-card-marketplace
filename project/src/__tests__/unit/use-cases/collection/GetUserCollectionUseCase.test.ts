@@ -112,12 +112,12 @@ describe('GetUserCollectionUseCase', () => {
       const userId = 'user-1';
       const collectionEntries = [mockCollectionEntry1, mockCollectionEntry2];
 
-      vi.mocked(mockCollectionRepository.findByUserId).mockResolvedValue(collectionEntries);
-      vi.mocked(mockCardRepository.findById)
+      (mockCollectionRepository.findByUserId as any).mockResolvedValue(collectionEntries);
+      (mockCardRepository.findById as any)
         .mockResolvedValueOnce(mockCard1)
         .mockResolvedValueOnce(mockCard2);
-      vi.mocked(mockCollectionRepository.countTotalCards).mockResolvedValue(3); // 2 + 1
-      vi.mocked(mockCollectionRepository.countUniqueCards).mockResolvedValue(2);
+      (mockCollectionRepository.countTotalCards as any).mockResolvedValue(3); // 2 + 1
+      (mockCollectionRepository.countUniqueCards as any).mockResolvedValue(2);
 
       // Act
       const result = await useCase.execute(userId);
@@ -168,9 +168,9 @@ describe('GetUserCollectionUseCase', () => {
       // Arrange
       const userId = 'user-1';
 
-      vi.mocked(mockCollectionRepository.findByUserId).mockResolvedValue([]);
-      vi.mocked(mockCollectionRepository.countTotalCards).mockResolvedValue(0);
-      vi.mocked(mockCollectionRepository.countUniqueCards).mockResolvedValue(0);
+      (mockCollectionRepository.findByUserId as any).mockResolvedValue([]);
+      (mockCollectionRepository.countTotalCards as any).mockResolvedValue(0);
+      (mockCollectionRepository.countUniqueCards as any).mockResolvedValue(0);
 
       // Act
       const result = await useCase.execute(userId);
@@ -194,10 +194,10 @@ describe('GetUserCollectionUseCase', () => {
       const userId = 'user-1';
       const collectionEntries = [mockCollectionEntry1];
 
-      vi.mocked(mockCollectionRepository.findByUserId).mockResolvedValue(collectionEntries);
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(null);
-      vi.mocked(mockCollectionRepository.countTotalCards).mockResolvedValue(2);
-      vi.mocked(mockCollectionRepository.countUniqueCards).mockResolvedValue(1);
+      (mockCollectionRepository.findByUserId as any).mockResolvedValue(collectionEntries);
+      (mockCardRepository.findById as any).mockResolvedValue(null);
+      (mockCollectionRepository.countTotalCards as any).mockResolvedValue(2);
+      (mockCollectionRepository.countUniqueCards as any).mockResolvedValue(1);
 
       // Act
       const result = await useCase.execute(userId);
@@ -227,7 +227,7 @@ describe('GetUserCollectionUseCase', () => {
     it('should handle collection repository errors', async () => {
       // Arrange
       const userId = 'user-1';
-      vi.mocked(mockCollectionRepository.findByUserId).mockRejectedValue(new Error('Database error'));
+      (mockCollectionRepository.findByUserId as any).mockRejectedValue(new Error('Database error'));
 
       // Act
       const result = await useCase.execute(userId);
@@ -243,8 +243,8 @@ describe('GetUserCollectionUseCase', () => {
       const userId = 'user-1';
       const collectionEntries = [mockCollectionEntry1];
 
-      vi.mocked(mockCollectionRepository.findByUserId).mockResolvedValue(collectionEntries);
-      vi.mocked(mockCardRepository.findById).mockRejectedValue(new Error('Card service error'));
+      (mockCollectionRepository.findByUserId as any).mockResolvedValue(collectionEntries);
+      (mockCardRepository.findById as any).mockRejectedValue(new Error('Card service error'));
 
       // Act
       const result = await useCase.execute(userId);
@@ -260,9 +260,9 @@ describe('GetUserCollectionUseCase', () => {
       const userId = 'user-1';
       const collectionEntries = [mockCollectionEntry1];
 
-      vi.mocked(mockCollectionRepository.findByUserId).mockResolvedValue(collectionEntries);
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(mockCard1);
-      vi.mocked(mockCollectionRepository.countTotalCards).mockRejectedValue(new Error('Count error'));
+      (mockCollectionRepository.findByUserId as any).mockResolvedValue(collectionEntries);
+      (mockCardRepository.findById as any).mockResolvedValue(mockCard1);
+      (mockCollectionRepository.countTotalCards as any).mockRejectedValue(new Error('Count error'));
 
       // Act
       const result = await useCase.execute(userId);
@@ -276,7 +276,7 @@ describe('GetUserCollectionUseCase', () => {
     it('should handle unknown errors', async () => {
       // Arrange
       const userId = 'user-1';
-      vi.mocked(mockCollectionRepository.findByUserId).mockRejectedValue('Unknown error');
+      (mockCollectionRepository.findByUserId as any).mockRejectedValue('Unknown error');
 
       // Act
       const result = await useCase.execute(userId);
@@ -320,12 +320,12 @@ describe('GetUserCollectionUseCase', () => {
         new Date()
       );
 
-      vi.mocked(mockCollectionRepository.findByUserId).mockResolvedValue([profitableEntry, lossEntry]);
-      vi.mocked(mockCardRepository.findById)
+      (mockCollectionRepository.findByUserId as any).mockResolvedValue([profitableEntry, lossEntry]);
+      (mockCardRepository.findById as any)
         .mockResolvedValueOnce(mockCard1)
         .mockResolvedValueOnce(mockCard2);
-      vi.mocked(mockCollectionRepository.countTotalCards).mockResolvedValue(2);
-      vi.mocked(mockCollectionRepository.countUniqueCards).mockResolvedValue(2);
+      (mockCollectionRepository.countTotalCards as any).mockResolvedValue(2);
+      (mockCollectionRepository.countUniqueCards as any).mockResolvedValue(2);
 
       // Act
       const result = await useCase.execute(userId);

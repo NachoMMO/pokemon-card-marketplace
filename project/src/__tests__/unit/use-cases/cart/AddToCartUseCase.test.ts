@@ -85,9 +85,9 @@ describe('AddToCartUseCase', () => {
         updatedAt: new Date('2023-01-01T00:00:00Z')
       };
 
-      vi.mocked(mockCardRepository.findById!).mockResolvedValue(mockCard);
-      vi.mocked(mockCartRepository.findByUserIdAndCardId!).mockResolvedValue(null);
-      vi.mocked(mockCartRepository.addItem!).mockResolvedValue(mockCartItem);
+      (mockCardRepository.findById! as any).mockResolvedValue(mockCard);
+      (mockCartRepository.findByUserIdAndCardId! as any).mockResolvedValue(null);
+      (mockCartRepository.addItem! as any).mockResolvedValue(mockCartItem);
 
       const result = await useCase.execute(addToCartData);
 
@@ -147,9 +147,9 @@ describe('AddToCartUseCase', () => {
         updatedAt: new Date('2023-01-01T01:00:00Z')
       };
 
-      vi.mocked(mockCardRepository.findById!).mockResolvedValue(mockCard);
-      vi.mocked(mockCartRepository.findByUserIdAndCardId!).mockResolvedValue(existingCartItem);
-      vi.mocked(mockCartRepository.updateQuantity!).mockResolvedValue(updatedCartItem);
+      (mockCardRepository.findById! as any).mockResolvedValue(mockCard);
+      (mockCartRepository.findByUserIdAndCardId! as any).mockResolvedValue(existingCartItem);
+      (mockCartRepository.updateQuantity! as any).mockResolvedValue(updatedCartItem);
 
       const result = await useCase.execute(addToCartData);
 
@@ -168,7 +168,7 @@ describe('AddToCartUseCase', () => {
         priceAtTime: 25.99
       };
 
-      vi.mocked(mockCardRepository.findById!).mockResolvedValue(null);
+      (mockCardRepository.findById! as any).mockResolvedValue(null);
 
       const result = await useCase.execute(addToCartData);
 
@@ -186,7 +186,7 @@ describe('AddToCartUseCase', () => {
         priceAtTime: 25.99
       };
 
-      vi.mocked(mockCardRepository.findById!).mockRejectedValue(
+      (mockCardRepository.findById! as any).mockRejectedValue(
         new Error('Database connection failed')
       );
 
@@ -223,9 +223,9 @@ describe('AddToCartUseCase', () => {
         updatedAt: new Date('2023-01-01T00:00:00Z')
       };
 
-      vi.mocked(mockCardRepository.findById!).mockResolvedValue(mockCard);
-      vi.mocked(mockCartRepository.findByUserIdAndCardId!).mockResolvedValue(null);
-      vi.mocked(mockCartRepository.addItem!).mockRejectedValue(
+      (mockCardRepository.findById! as any).mockResolvedValue(mockCard);
+      (mockCartRepository.findByUserIdAndCardId! as any).mockResolvedValue(null);
+      (mockCartRepository.addItem! as any).mockRejectedValue(
         new Error('Failed to add item to cart')
       );
 
@@ -274,9 +274,9 @@ describe('AddToCartUseCase', () => {
         updatedAt: new Date('2023-01-01T00:00:00Z')
       };
 
-      vi.mocked(mockCardRepository.findById!).mockResolvedValue(mockCard);
-      vi.mocked(mockCartRepository.findByUserIdAndCardId!).mockResolvedValue(existingCartItem);
-      vi.mocked(mockCartRepository.updateQuantity!).mockRejectedValue(
+      (mockCardRepository.findById! as any).mockResolvedValue(mockCard);
+      (mockCartRepository.findByUserIdAndCardId! as any).mockResolvedValue(existingCartItem);
+      (mockCartRepository.updateQuantity! as any).mockRejectedValue(
         new Error('Failed to update cart item')
       );
 
@@ -294,7 +294,7 @@ describe('AddToCartUseCase', () => {
         priceAtTime: 25.99
       };
 
-      vi.mocked(mockCardRepository.findById!).mockRejectedValue('Unknown error');
+      (mockCardRepository.findById! as any).mockRejectedValue('Unknown error');
 
       const result = await useCase.execute(addToCartData);
 
@@ -341,9 +341,9 @@ describe('AddToCartUseCase', () => {
         updatedAt: new Date('2023-01-01T00:00:00Z')
       };
 
-      vi.mocked(mockCardRepository.findById!).mockResolvedValue(mockCard);
-      vi.mocked(mockCartRepository.findByUserIdAndCardId!).mockResolvedValue(null);
-      vi.mocked(mockCartRepository.addItem!).mockResolvedValue(mockCartItem);
+      (mockCardRepository.findById! as any).mockResolvedValue(mockCard);
+      (mockCartRepository.findByUserIdAndCardId! as any).mockResolvedValue(null);
+      (mockCartRepository.addItem! as any).mockResolvedValue(mockCartItem);
 
       const result = await useCase.execute(addToCartData);
 

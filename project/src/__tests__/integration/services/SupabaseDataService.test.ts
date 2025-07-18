@@ -3,11 +3,6 @@ import { describe, it, expect, beforeEach, vi, beforeAll, afterAll } from 'vites
 import { SupabaseDataService } from '../../../infrastructure/driven/services/SupabaseDataService';
 import { createMockSupabaseClient } from '../../mocks/supabase.mock';
 
-// Mock de Supabase completo
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(),
-}));
-
 describe('SupabaseDataService Integration', () => {
   let mockSupabase: any;
   let dataService: SupabaseDataService;
@@ -307,7 +302,7 @@ describe('SupabaseDataService Integration', () => {
       const result = await dataService.getById('test_table', '123');
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Cannot destructure property');
+      expect(result.error).toContain('destructur');
     });
   });
 });

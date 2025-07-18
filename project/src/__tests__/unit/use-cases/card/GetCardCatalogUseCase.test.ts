@@ -67,8 +67,8 @@ describe('GetCardCatalogUseCase', () => {
         }
       ];
 
-      vi.mocked(mockCardRepository.findAll!).mockResolvedValue(mockCards);
-      vi.mocked(mockCardRepository.count!).mockResolvedValue(150);
+      (mockCardRepository.findAll! as any).mockResolvedValue(mockCards);
+      (mockCardRepository.count! as any).mockResolvedValue(150);
 
       const result = await useCase.execute(20, 0);
 
@@ -107,8 +107,8 @@ describe('GetCardCatalogUseCase', () => {
     it('should use default parameters', async () => {
       const mockCards: Card[] = [];
 
-      vi.mocked(mockCardRepository.findAll!).mockResolvedValue(mockCards);
-      vi.mocked(mockCardRepository.count!).mockResolvedValue(0);
+      (mockCardRepository.findAll! as any).mockResolvedValue(mockCards);
+      (mockCardRepository.count! as any).mockResolvedValue(0);
 
       const result = await useCase.execute();
 
@@ -121,8 +121,8 @@ describe('GetCardCatalogUseCase', () => {
     it('should calculate hasMore correctly when no more pages', async () => {
       const mockCards: Card[] = [];
 
-      vi.mocked(mockCardRepository.findAll!).mockResolvedValue(mockCards);
-      vi.mocked(mockCardRepository.count!).mockResolvedValue(15);
+      (mockCardRepository.findAll! as any).mockResolvedValue(mockCards);
+      (mockCardRepository.count! as any).mockResolvedValue(15);
 
       const result = await useCase.execute(20, 0);
 
@@ -154,7 +154,7 @@ describe('GetCardCatalogUseCase', () => {
     });
 
     it('should handle repository errors gracefully', async () => {
-      vi.mocked(mockCardRepository.findAll!).mockRejectedValue(
+      (mockCardRepository.findAll! as any).mockRejectedValue(
         new Error('Database connection failed')
       );
 
@@ -167,8 +167,8 @@ describe('GetCardCatalogUseCase', () => {
     it('should handle count repository errors gracefully', async () => {
       const mockCards: Card[] = [];
 
-      vi.mocked(mockCardRepository.findAll!).mockResolvedValue(mockCards);
-      vi.mocked(mockCardRepository.count!).mockRejectedValue(
+      (mockCardRepository.findAll! as any).mockResolvedValue(mockCards);
+      (mockCardRepository.count! as any).mockRejectedValue(
         new Error('Count query failed')
       );
 
@@ -179,7 +179,7 @@ describe('GetCardCatalogUseCase', () => {
     });
 
     it('should handle unknown errors', async () => {
-      vi.mocked(mockCardRepository.findAll!).mockRejectedValue('Unknown error');
+      (mockCardRepository.findAll! as any).mockRejectedValue('Unknown error');
 
       const result = await useCase.execute(20, 0);
 
@@ -190,8 +190,8 @@ describe('GetCardCatalogUseCase', () => {
     it('should handle pagination correctly with different offsets', async () => {
       const mockCards: Card[] = [];
 
-      vi.mocked(mockCardRepository.findAll!).mockResolvedValue(mockCards);
-      vi.mocked(mockCardRepository.count!).mockResolvedValue(100);
+      (mockCardRepository.findAll! as any).mockResolvedValue(mockCards);
+      (mockCardRepository.count! as any).mockResolvedValue(100);
 
       // Segunda página
       const result = await useCase.execute(20, 20);
@@ -205,8 +205,8 @@ describe('GetCardCatalogUseCase', () => {
     it('should handle last page correctly', async () => {
       const mockCards: Card[] = [];
 
-      vi.mocked(mockCardRepository.findAll!).mockResolvedValue(mockCards);
-      vi.mocked(mockCardRepository.count!).mockResolvedValue(100);
+      (mockCardRepository.findAll! as any).mockResolvedValue(mockCards);
+      (mockCardRepository.count! as any).mockResolvedValue(100);
 
       // Última página (elementos 80-99)
       const result = await useCase.execute(20, 80);

@@ -85,9 +85,9 @@ describe('AddToCollectionUseCase', () => {
 
     it('should add new card to collection successfully', async () => {
       // Arrange
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(mockCard);
-      vi.mocked(mockCollectionRepository.findByUserIdAndCardId).mockResolvedValue(null);
-      vi.mocked(mockCollectionRepository.addCard).mockResolvedValue(mockCollectionEntry);
+      (mockCardRepository.findById as any).mockResolvedValue(mockCard);
+      (mockCollectionRepository.findByUserIdAndCardId as any).mockResolvedValue(null);
+      (mockCollectionRepository.addCard as any).mockResolvedValue(mockCollectionEntry);
 
       // Act
       const result = await useCase.execute(validAddToCollectionData);
@@ -155,9 +155,9 @@ describe('AddToCollectionUseCase', () => {
         new Date()
       );
 
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(mockCard);
-      vi.mocked(mockCollectionRepository.findByUserIdAndCardId).mockResolvedValue(existingEntry);
-      vi.mocked(mockCollectionRepository.updateQuantity).mockResolvedValue(updatedEntry);
+      (mockCardRepository.findById as any).mockResolvedValue(mockCard);
+      (mockCollectionRepository.findByUserIdAndCardId as any).mockResolvedValue(existingEntry);
+      (mockCollectionRepository.updateQuantity as any).mockResolvedValue(updatedEntry);
 
       const addData: AddToCollectionDTO = {
         userId: 'user-1',
@@ -196,9 +196,9 @@ describe('AddToCollectionUseCase', () => {
         new Date()
       );
 
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(mockCard);
-      vi.mocked(mockCollectionRepository.findByUserIdAndCardId).mockResolvedValue(existingEntry);
-      vi.mocked(mockCollectionRepository.addCard).mockResolvedValue(mockCollectionEntry);
+      (mockCardRepository.findById as any).mockResolvedValue(mockCard);
+      (mockCollectionRepository.findByUserIdAndCardId as any).mockResolvedValue(existingEntry);
+      (mockCollectionRepository.addCard as any).mockResolvedValue(mockCollectionEntry);
 
       const addData: AddToCollectionDTO = {
         userId: 'user-1',
@@ -219,7 +219,7 @@ describe('AddToCollectionUseCase', () => {
 
     it('should return error when card does not exist', async () => {
       // Arrange
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(null);
+      (mockCardRepository.findById as any).mockResolvedValue(null);
 
       // Act
       const result = await useCase.execute(validAddToCollectionData);
@@ -233,9 +233,9 @@ describe('AddToCollectionUseCase', () => {
 
     it('should handle collection repository errors during add', async () => {
       // Arrange
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(mockCard);
-      vi.mocked(mockCollectionRepository.findByUserIdAndCardId).mockResolvedValue(null);
-      vi.mocked(mockCollectionRepository.addCard).mockRejectedValue(new Error('Database error'));
+      (mockCardRepository.findById as any).mockResolvedValue(mockCard);
+      (mockCollectionRepository.findByUserIdAndCardId as any).mockResolvedValue(null);
+      (mockCollectionRepository.addCard as any).mockRejectedValue(new Error('Database error'));
 
       // Act
       const result = await useCase.execute(validAddToCollectionData);
@@ -263,9 +263,9 @@ describe('AddToCollectionUseCase', () => {
         new Date()
       );
 
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(mockCard);
-      vi.mocked(mockCollectionRepository.findByUserIdAndCardId).mockResolvedValue(existingEntry);
-      vi.mocked(mockCollectionRepository.updateQuantity).mockRejectedValue(new Error('Update failed'));
+      (mockCardRepository.findById as any).mockResolvedValue(mockCard);
+      (mockCollectionRepository.findByUserIdAndCardId as any).mockResolvedValue(existingEntry);
+      (mockCollectionRepository.updateQuantity as any).mockRejectedValue(new Error('Update failed'));
 
       // Act
       const result = await useCase.execute(validAddToCollectionData);
@@ -278,7 +278,7 @@ describe('AddToCollectionUseCase', () => {
 
     it('should handle card repository errors', async () => {
       // Arrange
-      vi.mocked(mockCardRepository.findById).mockRejectedValue(new Error('Card service error'));
+      (mockCardRepository.findById as any).mockRejectedValue(new Error('Card service error'));
 
       // Act
       const result = await useCase.execute(validAddToCollectionData);
@@ -291,7 +291,7 @@ describe('AddToCollectionUseCase', () => {
 
     it('should handle unknown errors', async () => {
       // Arrange
-      vi.mocked(mockCardRepository.findById).mockRejectedValue('Unknown error');
+      (mockCardRepository.findById as any).mockRejectedValue('Unknown error');
 
       // Act
       const result = await useCase.execute(validAddToCollectionData);
@@ -313,9 +313,9 @@ describe('AddToCollectionUseCase', () => {
         // notes omitted
       };
 
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(mockCard);
-      vi.mocked(mockCollectionRepository.findByUserIdAndCardId).mockResolvedValue(null);
-      vi.mocked(mockCollectionRepository.addCard).mockResolvedValue(mockCollectionEntry);
+      (mockCardRepository.findById as any).mockResolvedValue(mockCard);
+      (mockCollectionRepository.findByUserIdAndCardId as any).mockResolvedValue(null);
+      (mockCollectionRepository.addCard as any).mockResolvedValue(mockCollectionEntry);
 
       // Act
       const result = await useCase.execute(dataWithoutNotes);

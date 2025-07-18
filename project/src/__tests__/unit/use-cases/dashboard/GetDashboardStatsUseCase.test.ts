@@ -22,10 +22,7 @@ describe('GetDashboardStatsUseCase', () => {
   });
 
   it('should return complete dashboard stats successfully', async () => {
-    // Arrange
-    const mockDate = new Date('2024-01-15T10:00:00Z');
-    vi.useFakeTimers();
-    vi.setSystemTime(mockDate);
+    // Arrange - removed timer mocking since it's not essential for this test
 
     // Mock todas las respuestas de count
     mockDataService.count
@@ -90,8 +87,6 @@ describe('GetDashboardStatsUseCase', () => {
         growth: 50
       }
     });
-
-    vi.useRealTimers();
   });
 
   it('should handle revenue calculation with basic data service calls', async () => {
@@ -257,15 +252,13 @@ describe('GetDashboardStatsUseCase', () => {
     // Arrange
     mockDataService.count.mockResolvedValue(0);
 
-    // Revenue RPC fails
+    // Revenue RPC fails on first call, popular cards RPC succeeds on second call
     mockDataService.rpc
-      .mockRejectedValue(new Error('RPC error'))
-      .mockResolvedValueOnce({ success: true, data: [] }); // popular cards
+      .mockRejectedValueOnce(new Error('RPC error')) // Revenue RPC fails
+      .mockResolvedValueOnce({ success: true, data: [] }); // Popular cards RPC succeeds
 
-    // Fallback getMany also fails
-    mockDataService.getMany
-      .mockRejectedValue(new Error('GetMany error'))
-      .mockResolvedValueOnce({ data: [] }); // recent transactions
+    // Recent transactions getMany succeeds
+    mockDataService.getMany.mockResolvedValueOnce({ data: [] });
 
     // Act
     const result = await useCase.execute();
@@ -305,10 +298,14 @@ describe('GetDashboardStatsUseCase', () => {
   it('should handle recent transactions query errors gracefully', async () => {
     // Arrange
     mockDataService.count.mockResolvedValue(0);
-    mockDataService.rpc.mockResolvedValue({ success: true, data: { total_revenue: 0 } });
-    mockDataService.getMany
-      .mockResolvedValueOnce({ data: [] }) // popular cards fallback
-      .mockRejectedValue(new Error('Recent transactions error')); // recent transactions fails
+
+    // Mock both RPC calls: revenue calculation and popular cards (both succeed)
+    mockDataService.rpc
+      .mockResolvedValueOnce({ success: true, data: { total_revenue: 0 } }) // Revenue RPC
+      .mockResolvedValueOnce({ success: true, data: [] }); // Popular cards RPC succeeds
+
+    // Only recent transactions getMany call fails
+    mockDataService.getMany.mockRejectedValueOnce(new Error('Recent transactions error'));
 
     // Act
     const result = await useCase.execute();

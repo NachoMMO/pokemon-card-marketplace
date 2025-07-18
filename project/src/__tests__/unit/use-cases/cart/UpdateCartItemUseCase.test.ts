@@ -43,7 +43,7 @@ describe('UpdateCartItemUseCase', () => {
 
     it('should update cart item quantity successfully', async () => {
       // Arrange
-      vi.mocked(mockCartRepository.updateQuantity).mockResolvedValue(mockUpdatedCartItem);
+      (mockCartRepository.updateQuantity as any).mockResolvedValue(mockUpdatedCartItem);
 
       // Act
       const result = await useCase.execute(validUpdateData);
@@ -119,7 +119,7 @@ describe('UpdateCartItemUseCase', () => {
     it('should accept valid quantity ranges', async () => {
       // Arrange
       const validQuantities = [1, 10, 50, 99]; // Edge cases and valid values
-      vi.mocked(mockCartRepository.updateQuantity).mockResolvedValue(mockUpdatedCartItem);
+      (mockCartRepository.updateQuantity as any).mockResolvedValue(mockUpdatedCartItem);
 
       // Act & Assert
       for (const quantity of validQuantities) {
@@ -134,7 +134,7 @@ describe('UpdateCartItemUseCase', () => {
 
     it('should handle repository errors gracefully', async () => {
       // Arrange
-      vi.mocked(mockCartRepository.updateQuantity).mockRejectedValue(new Error('Database error'));
+      (mockCartRepository.updateQuantity as any).mockRejectedValue(new Error('Database error'));
 
       // Act
       const result = await useCase.execute(validUpdateData);
@@ -148,7 +148,7 @@ describe('UpdateCartItemUseCase', () => {
 
     it('should handle cart item not found errors', async () => {
       // Arrange
-      vi.mocked(mockCartRepository.updateQuantity).mockRejectedValue(new Error('Cart item not found'));
+      (mockCartRepository.updateQuantity as any).mockRejectedValue(new Error('Cart item not found'));
 
       // Act
       const result = await useCase.execute(validUpdateData);
@@ -161,7 +161,7 @@ describe('UpdateCartItemUseCase', () => {
 
     it('should handle unknown errors', async () => {
       // Arrange
-      vi.mocked(mockCartRepository.updateQuantity).mockRejectedValue('Unknown error');
+      (mockCartRepository.updateQuantity as any).mockRejectedValue('Unknown error');
 
       // Act
       const result = await useCase.execute(validUpdateData);
@@ -181,7 +181,7 @@ describe('UpdateCartItemUseCase', () => {
         { cartItemId: 'uuid-style-id', quantity: 99 }
       ];
 
-      vi.mocked(mockCartRepository.updateQuantity).mockResolvedValue(mockUpdatedCartItem);
+      (mockCartRepository.updateQuantity as any).mockResolvedValue(mockUpdatedCartItem);
 
       // Act & Assert
       for (const updateData of updateCases) {

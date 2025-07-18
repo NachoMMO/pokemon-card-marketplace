@@ -33,12 +33,15 @@ const mockSupabase = {
 const resetMocks = () => {
   vi.clearAllMocks();
 
-  (mockSupabase.channel as any).mockReturnValue(mockSupabaseChannel);
-  mockOn.mockReturnValue(mockSupabaseChannel);
-  mockSubscribe.mockReturnValue(mockSupabaseChannel);
-  mockSend.mockResolvedValue('ok');
-  mockTrack.mockResolvedValue(undefined);
-  mockPresenceState.mockReturnValue({});
+  // Reset all mock implementations to default behavior
+  mockOn.mockReset().mockReturnValue(mockSupabaseChannel);
+  mockSubscribe.mockReset().mockReturnValue(mockSupabaseChannel);
+  mockUnsubscribe.mockReset(); // Reset to default behavior (no error)
+  mockSend.mockReset().mockResolvedValue('ok');
+  mockTrack.mockReset().mockResolvedValue(undefined);
+  mockPresenceState.mockReset().mockReturnValue({});
+
+  (mockSupabase.channel as any).mockReset().mockReturnValue(mockSupabaseChannel);
 };
 
 describe('SupabaseRealtimeService', () => {
@@ -47,6 +50,8 @@ describe('SupabaseRealtimeService', () => {
   beforeEach(() => {
     resetMocks();
     realtimeService = new SupabaseRealtimeService(mockSupabase);
+    // Clear any internal state from the service
+    (realtimeService as any).channels.clear();
   });
 
   describe('subscribe', () => {

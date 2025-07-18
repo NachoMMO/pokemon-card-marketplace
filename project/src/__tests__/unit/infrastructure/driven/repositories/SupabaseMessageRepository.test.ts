@@ -4,7 +4,8 @@ import { Message } from '../../../../../domain/entities/Message';
 
 // Mock Supabase client
 const mockSupabaseClient = {
-  from: vi.fn()
+  from: vi.fn(),
+  rpc: vi.fn()
 };
 
 // Mock query builder methods
@@ -327,6 +328,296 @@ describe('SupabaseMessageRepository', () => {
 
       // Act
       const result = await repository.findBySenderId(senderId);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('markAsRead', () => {
+    it('should mark message as read successfully', async () => {
+      // Arrange
+      const messageId = 'message-123';
+      const mockUpdatedRow = {
+        ...createMockMessageRow(),
+        is_read: true,
+        read_at: new Date().toISOString()
+      };
+
+      mockFrom.single.mockResolvedValue({ data: mockUpdatedRow, error: null });
+
+      // Act
+      const result = await repository.markAsRead(messageId);
+
+      // Assert
+      expect(result).toBeInstanceOf(Message);
+      expect(result.isRead).toBe(true);
+      expect(mockFrom.eq).toHaveBeenCalledWith('id', messageId);
+      expect(mockFrom.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          is_read: true,
+          read_at: expect.any(String),
+          updated_at: expect.any(String)
+        })
+      );
+    });
+
+    it('should throw error when mark as read fails', async () => {
+      // Arrange
+      const messageId = 'message-123';
+
+      mockFrom.single.mockResolvedValue({ data: null, error: new Error('Update failed') });
+
+      // Act & Assert
+      await expect(repository.markAsRead(messageId)).rejects.toThrow('Error al marcar mensaje como leído: Update failed');
+    });
+
+    it('should handle unknown error in markAsRead', async () => {
+      // Arrange
+      const messageId = 'message-123';
+
+      mockFrom.single.mockRejectedValue('Unknown error');
+
+      // Act & Assert
+      await expect(repository.markAsRead(messageId)).rejects.toThrow('Error desconocido al marcar mensaje como leído');
+    });
+  });
+
+  describe('findUnreadByReceiverId', () => {
+    it('should find unread messages by receiver ID successfully', async () => {
+      // Arrange
+      const receiverId = 'user-2';
+      const mockRows = [createMockMessageRow()];
+
+      mockFrom.order.mockResolvedValue({ data: mockRows, error: null });
+
+      // Act
+      const result = await repository.findUnreadByReceiverId(receiverId);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(Message);
+      expect(result[0].recipientId).toBe('user-2');
+      expect(mockFrom.eq).toHaveBeenCalledWith('recipient_id', receiverId);
+      expect(mockFrom.eq).toHaveBeenCalledWith('is_read', false);
+      expect(mockFrom.order).toHaveBeenCalledWith('created_at', { ascending: false });
+    });
+
+    it('should return empty array when no unread messages found', async () => {
+      // Arrange
+      const receiverId = 'user-2';
+
+      mockFrom.order.mockResolvedValue({ data: [], error: null });
+
+      // Act
+      const result = await repository.findUnreadByReceiverId(receiverId);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it('should handle database error in findUnreadByReceiverId', async () => {
+      // Arrange
+      const receiverId = 'user-2';
+
+      mockFrom.order.mockResolvedValue({ data: null, error: new Error('Database error') });
+
+      // Act
+      const result = await repository.findUnreadByReceiverId(receiverId);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('delete', () => {
+    const mockDelete = {
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn()
+    };
+
+    beforeEach(() => {
+      mockSupabaseClient.from.mockReturnValue(mockDelete);
+    });
+
+    it('should delete message successfully', async () => {
+      // Arrange
+      const messageId = 'message-123';
+      mockDelete.eq.mockResolvedValue({ error: null });
+
+      // Act
+      const result = await repository.delete(messageId);
+
+      // Assert
+      expect(result).toBe(true);
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('messages');
+      expect(mockDelete.delete).toHaveBeenCalled();
+      expect(mockDelete.eq).toHaveBeenCalledWith('id', messageId);
+    });
+
+    it('should return false when delete fails', async () => {
+      // Arrange
+      const messageId = 'message-123';
+      mockDelete.eq.mockResolvedValue({ error: new Error('Delete failed') });
+
+      // Act
+      const result = await repository.delete(messageId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it('should handle exception in delete', async () => {
+      // Arrange
+      const messageId = 'message-123';
+      mockDelete.eq.mockRejectedValue(new Error('Database error'));
+
+      // Act
+      const result = await repository.delete(messageId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('getUnreadCount', () => {
+    const mockSelect = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis()
+    };
+
+    it('should get unread count successfully', async () => {
+      // Arrange
+      const receiverId = 'user-2';
+      mockSupabaseClient.from.mockReturnValue(mockSelect);
+      mockSelect.eq.mockReturnValueOnce(mockSelect); // First .eq() call
+      mockSelect.eq.mockResolvedValueOnce({ count: 5, error: null }); // Second .eq() call
+
+      // Act
+      const result = await repository.getUnreadCount(receiverId);
+
+      // Assert
+      expect(result).toBe(5);
+      expect(mockSelect.select).toHaveBeenCalledWith('*', { count: 'exact', head: true });
+      expect(mockSelect.eq).toHaveBeenCalledWith('recipient_id', receiverId);
+      expect(mockSelect.eq).toHaveBeenCalledWith('is_read', false);
+    });
+
+    it('should return 0 when count is null', async () => {
+      // Arrange
+      const receiverId = 'user-2';
+      mockSupabaseClient.from.mockReturnValue(mockSelect);
+      mockSelect.eq.mockReturnValueOnce(mockSelect);
+      mockSelect.eq.mockResolvedValueOnce({ count: null, error: null });
+
+      // Act
+      const result = await repository.getUnreadCount(receiverId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
+
+    it('should return 0 when database error occurs', async () => {
+      // Arrange
+      const receiverId = 'user-2';
+      mockSupabaseClient.from.mockReturnValue(mockSelect);
+      mockSelect.eq.mockReturnValueOnce(mockSelect);
+      mockSelect.eq.mockResolvedValueOnce({ count: null, error: new Error('Database error') });
+
+      // Act
+      const result = await repository.getUnreadCount(receiverId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
+
+    it('should handle exception in getUnreadCount', async () => {
+      // Arrange
+      const receiverId = 'user-2';
+      mockSupabaseClient.from.mockReturnValue(mockSelect);
+      mockSelect.eq.mockReturnValueOnce(mockSelect);
+      mockSelect.eq.mockRejectedValueOnce(new Error('Database error'));
+
+      // Act
+      const result = await repository.getUnreadCount(receiverId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
+  });
+
+  describe('getConversations', () => {
+    it('should get conversations successfully using RPC', async () => {
+      // Arrange
+      const userId = 'user-1';
+      const mockData = [createMockMessageRow()];
+      mockSupabaseClient.rpc.mockResolvedValue({ data: mockData, error: null });
+
+      // Act
+      const result = await repository.getConversations(userId);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(Message);
+      expect(mockSupabaseClient.rpc).toHaveBeenCalledWith('get_latest_messages_by_conversation', { user_id: userId });
+    });
+
+    it('should fallback when RPC fails', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSupabaseClient.rpc.mockResolvedValue({ data: null, error: new Error('RPC failed') });
+
+      // Mock fallback method
+      const mockFallbackData = [
+        { ...createMockMessageRow(), sender_id: 'user-1', recipient_id: 'user-2' },
+        { ...createMockMessageRow(), id: 'message-456', sender_id: 'user-3', recipient_id: 'user-1' }
+      ];
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        or: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({ data: mockFallbackData, error: null })
+      });
+
+      // Act
+      const result = await repository.getConversations(userId);
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result[0]).toBeInstanceOf(Message);
+    });
+
+    it('should handle fallback database error', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSupabaseClient.rpc.mockResolvedValue({ data: null, error: new Error('RPC failed') });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        or: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({ data: null, error: new Error('Fallback failed') })
+      });
+
+      // Act
+      const result = await repository.getConversations(userId);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it('should handle fallback exception', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSupabaseClient.rpc.mockResolvedValue({ data: null, error: new Error('RPC failed') });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        or: vi.fn().mockReturnThis(),
+        order: vi.fn().mockRejectedValue(new Error('Fallback exception'))
+      });
+
+      // Act
+      const result = await repository.getConversations(userId);
 
       // Assert
       expect(result).toEqual([]);

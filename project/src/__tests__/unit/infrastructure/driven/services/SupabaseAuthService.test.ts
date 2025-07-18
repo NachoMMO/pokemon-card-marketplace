@@ -2,6 +2,16 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SupabaseAuthService } from '../../../../../infrastructure/driven/services/SupabaseAuthService';
 import { User } from '../../../../../domain/entities/User';
 
+// Mock window object for Node.js environment
+Object.defineProperty(global, 'window', {
+  value: {
+    location: {
+      origin: 'http://localhost:3000'
+    }
+  },
+  writable: true
+});
+
 // Mock Supabase client
 const mockSupabaseClient = {
   auth: {

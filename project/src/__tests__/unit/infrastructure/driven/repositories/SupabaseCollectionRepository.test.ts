@@ -228,5 +228,205 @@ describe('SupabaseCollectionRepository', () => {
       // Act & Assert
       await expect(repository.updateQuantity(entryId, newQuantity)).rejects.toThrow('Error al actualizar cantidad: Update failed');
     });
+
+    it('should handle unknown error in updateQuantity', async () => {
+      // Arrange
+      const entryId = 'collection-123';
+      const newQuantity = 5;
+
+      mockFrom.single.mockRejectedValue('Unknown error');
+
+      // Act & Assert
+      await expect(repository.updateQuantity(entryId, newQuantity)).rejects.toThrow('Error desconocido al actualizar cantidad');
+    });
+  });
+
+  describe('removeCard', () => {
+    const mockDelete = {
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn()
+    };
+
+    beforeEach(() => {
+      mockSupabaseClient.from.mockReturnValue(mockDelete);
+    });
+
+    it('should remove card from collection successfully', async () => {
+      // Arrange
+      const entryId = 'collection-123';
+      mockDelete.eq.mockResolvedValue({ error: null });
+
+      // Act
+      const result = await repository.removeCard(entryId);
+
+      // Assert
+      expect(result).toBe(true);
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('collections');
+      expect(mockDelete.delete).toHaveBeenCalled();
+      expect(mockDelete.eq).toHaveBeenCalledWith('id', entryId);
+    });
+
+    it('should return false when remove fails', async () => {
+      // Arrange
+      const entryId = 'collection-123';
+      mockDelete.eq.mockResolvedValue({ error: new Error('Delete failed') });
+
+      // Act
+      const result = await repository.removeCard(entryId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it('should handle exception in removeCard', async () => {
+      // Arrange
+      const entryId = 'collection-123';
+      mockDelete.eq.mockRejectedValue(new Error('Database error'));
+
+      // Act
+      const result = await repository.removeCard(entryId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('countUniqueCards', () => {
+    const mockSelect = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn()
+    };
+
+    beforeEach(() => {
+      mockSupabaseClient.from.mockReturnValue(mockSelect);
+    });
+
+    it('should count unique cards successfully', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSelect.eq.mockResolvedValue({ count: 15, error: null });
+
+      // Act
+      const result = await repository.countUniqueCards(userId);
+
+      // Assert
+      expect(result).toBe(15);
+      expect(mockSelect.select).toHaveBeenCalledWith('card_id', { count: 'exact', head: true });
+      expect(mockSelect.eq).toHaveBeenCalledWith('user_id', userId);
+    });
+
+    it('should return 0 when count is null', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSelect.eq.mockResolvedValue({ count: null, error: null });
+
+      // Act
+      const result = await repository.countUniqueCards(userId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
+
+    it('should return 0 when database error occurs', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSelect.eq.mockResolvedValue({ count: null, error: new Error('Database error') });
+
+      // Act
+      const result = await repository.countUniqueCards(userId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
+
+    it('should handle exception in countUniqueCards', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSelect.eq.mockRejectedValue(new Error('Database error'));
+
+      // Act
+      const result = await repository.countUniqueCards(userId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
+  });
+
+  describe('countTotalCards', () => {
+    const mockSelectTotal = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn()
+    };
+
+    beforeEach(() => {
+      mockSupabaseClient.from.mockReturnValue(mockSelectTotal);
+    });
+
+    it('should count total cards successfully', async () => {
+      // Arrange
+      const userId = 'user-1';
+      const mockData = [
+        { quantity: 3 },
+        { quantity: 2 },
+        { quantity: 5 }
+      ];
+      mockSelectTotal.eq.mockResolvedValue({ data: mockData, error: null });
+
+      // Act
+      const result = await repository.countTotalCards(userId);
+
+      // Assert
+      expect(result).toBe(10); // 3 + 2 + 5
+      expect(mockSelectTotal.select).toHaveBeenCalledWith('quantity');
+      expect(mockSelectTotal.eq).toHaveBeenCalledWith('user_id', userId);
+    });
+
+    it('should return 0 when no cards found', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSelectTotal.eq.mockResolvedValue({ data: [], error: null });
+
+      // Act
+      const result = await repository.countTotalCards(userId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
+
+    it('should return 0 when data is null', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSelectTotal.eq.mockResolvedValue({ data: null, error: null });
+
+      // Act
+      const result = await repository.countTotalCards(userId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
+
+    it('should return 0 when database error occurs', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSelectTotal.eq.mockResolvedValue({ data: null, error: new Error('Database error') });
+
+      // Act
+      const result = await repository.countTotalCards(userId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
+
+    it('should handle exception in countTotalCards', async () => {
+      // Arrange
+      const userId = 'user-1';
+      mockSelectTotal.eq.mockRejectedValue(new Error('Database error'));
+
+      // Act
+      const result = await repository.countTotalCards(userId);
+
+      // Assert
+      expect(result).toBe(0);
+    });
   });
 });

@@ -83,8 +83,8 @@ describe('LoginUserUseCase', () => {
         error: null
       };
 
-      vi.mocked(mockAuthService.signIn).mockResolvedValue(authResponse);
-      vi.mocked(mockUserProfileRepository.findByUserId).mockResolvedValue(mockUserProfile);
+      (mockAuthService.signIn as any).mockResolvedValue(authResponse);
+      (mockUserProfileRepository.findByUserId as any).mockResolvedValue(mockUserProfile);
 
       // Act
       const result = await useCase.execute(validLoginData);
@@ -121,7 +121,7 @@ describe('LoginUserUseCase', () => {
         error: 'Invalid credentials'
       };
 
-      vi.mocked(mockAuthService.signIn).mockResolvedValue(authResponse);
+      (mockAuthService.signIn as any).mockResolvedValue(authResponse);
 
       // Act
       const result = await useCase.execute(validLoginData);
@@ -140,7 +140,7 @@ describe('LoginUserUseCase', () => {
         error: null
       };
 
-      vi.mocked(mockAuthService.signIn).mockResolvedValue(authResponse);
+      (mockAuthService.signIn as any).mockResolvedValue(authResponse);
 
       // Act
       const result = await useCase.execute(validLoginData);
@@ -167,7 +167,7 @@ describe('LoginUserUseCase', () => {
         error: null
       };
 
-      vi.mocked(mockAuthService.signIn).mockResolvedValue(authResponse);
+      (mockAuthService.signIn as any).mockResolvedValue(authResponse);
 
       // Act
       const result = await useCase.execute(validLoginData);
@@ -199,8 +199,8 @@ describe('LoginUserUseCase', () => {
         error: null
       };
 
-      vi.mocked(mockAuthService.signIn).mockResolvedValue(authResponse);
-      vi.mocked(mockUserProfileRepository.findByUserId).mockResolvedValue(null);
+      (mockAuthService.signIn as any).mockResolvedValue(authResponse);
+      (mockUserProfileRepository.findByUserId as any).mockResolvedValue(null);
 
       // Act
       const result = await useCase.execute(validLoginData);
@@ -218,7 +218,7 @@ describe('LoginUserUseCase', () => {
 
     it('should handle auth service errors gracefully', async () => {
       // Arrange
-      vi.mocked(mockAuthService.signIn).mockRejectedValue(new Error('Network error'));
+      (mockAuthService.signIn as any).mockRejectedValue(new Error('Network error'));
 
       // Act
       const result = await useCase.execute(validLoginData);
@@ -245,8 +245,8 @@ describe('LoginUserUseCase', () => {
         error: null
       };
 
-      vi.mocked(mockAuthService.signIn).mockResolvedValue(authResponse);
-      vi.mocked(mockUserProfileRepository.findByUserId).mockRejectedValue(new Error('Database error'));
+      (mockAuthService.signIn as any).mockResolvedValue(authResponse);
+      (mockUserProfileRepository.findByUserId as any).mockRejectedValue(new Error('Database error'));
 
       // Act
       const result = await useCase.execute(validLoginData);
@@ -259,7 +259,7 @@ describe('LoginUserUseCase', () => {
 
     it('should handle unknown errors', async () => {
       // Arrange
-      vi.mocked(mockAuthService.signIn).mockRejectedValue('Unknown error');
+      (mockAuthService.signIn as any).mockRejectedValue('Unknown error');
 
       // Act
       const result = await useCase.execute(validLoginData);

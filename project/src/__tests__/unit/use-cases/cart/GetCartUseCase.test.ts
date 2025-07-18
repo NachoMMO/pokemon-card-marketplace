@@ -77,8 +77,8 @@ describe('GetCartUseCase', () => {
       const userId = 'user-1';
       const cartItems = [mockCartItem];
 
-      vi.mocked(mockCartRepository.findByUserId).mockResolvedValue(cartItems);
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(mockCard);
+      (mockCartRepository.findByUserId as any).mockResolvedValue(cartItems);
+      (mockCardRepository.findById as any).mockResolvedValue(mockCard);
 
       // Act
       const result = await useCase.execute(userId);
@@ -117,7 +117,7 @@ describe('GetCartUseCase', () => {
       // Arrange
       const userId = 'user-1';
 
-      vi.mocked(mockCartRepository.findByUserId).mockResolvedValue([]);
+      (mockCartRepository.findByUserId as any).mockResolvedValue([]);
 
       // Act
       const result = await useCase.execute(userId);
@@ -139,8 +139,8 @@ describe('GetCartUseCase', () => {
       const userId = 'user-1';
       const cartItems = [mockCartItem];
 
-      vi.mocked(mockCartRepository.findByUserId).mockResolvedValue(cartItems);
-      vi.mocked(mockCardRepository.findById).mockResolvedValue(null);
+      (mockCartRepository.findByUserId as any).mockResolvedValue(cartItems);
+      (mockCardRepository.findById as any).mockResolvedValue(null);
 
       // Act
       const result = await useCase.execute(userId);
@@ -210,8 +210,8 @@ describe('GetCartUseCase', () => {
 
       const cartItems = [mockCartItem, mockCartItem2];
 
-      vi.mocked(mockCartRepository.findByUserId).mockResolvedValue(cartItems);
-      vi.mocked(mockCardRepository.findById)
+      (mockCartRepository.findByUserId as any).mockResolvedValue(cartItems);
+      (mockCardRepository.findById as any)
         .mockResolvedValueOnce(mockCard)
         .mockResolvedValueOnce(mockCard2);
 
@@ -229,7 +229,7 @@ describe('GetCartUseCase', () => {
     it('should handle cart repository errors gracefully', async () => {
       // Arrange
       const userId = 'user-1';
-      vi.mocked(mockCartRepository.findByUserId).mockRejectedValue(new Error('Database connection error'));
+      (mockCartRepository.findByUserId as any).mockRejectedValue(new Error('Database connection error'));
 
       // Act
       const result = await useCase.execute(userId);
@@ -245,8 +245,8 @@ describe('GetCartUseCase', () => {
       const userId = 'user-1';
       const cartItems = [mockCartItem];
 
-      vi.mocked(mockCartRepository.findByUserId).mockResolvedValue(cartItems);
-      vi.mocked(mockCardRepository.findById).mockRejectedValue(new Error('Card service error'));
+      (mockCartRepository.findByUserId as any).mockResolvedValue(cartItems);
+      (mockCardRepository.findById as any).mockRejectedValue(new Error('Card service error'));
 
       // Act
       const result = await useCase.execute(userId);
@@ -260,7 +260,7 @@ describe('GetCartUseCase', () => {
     it('should handle unknown errors', async () => {
       // Arrange
       const userId = 'user-1';
-      vi.mocked(mockCartRepository.findByUserId).mockRejectedValue('Unknown error');
+      (mockCartRepository.findByUserId as any).mockRejectedValue('Unknown error');
 
       // Act
       const result = await useCase.execute(userId);

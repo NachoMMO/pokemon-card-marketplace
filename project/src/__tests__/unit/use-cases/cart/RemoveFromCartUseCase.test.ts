@@ -26,7 +26,7 @@ describe('RemoveFromCartUseCase', () => {
     it('should remove cart item successfully', async () => {
       // Arrange
       const cartItemId = 'cart-item-1';
-      vi.mocked(mockCartRepository.removeItem).mockResolvedValue(true);
+      (mockCartRepository.removeItem as any).mockResolvedValue(true);
 
       // Act
       const result = await useCase.execute(cartItemId);
@@ -59,7 +59,7 @@ describe('RemoveFromCartUseCase', () => {
     it('should return error when repository remove fails', async () => {
       // Arrange
       const cartItemId = 'cart-item-1';
-      vi.mocked(mockCartRepository.removeItem).mockResolvedValue(false);
+      (mockCartRepository.removeItem as any).mockResolvedValue(false);
 
       // Act
       const result = await useCase.execute(cartItemId);
@@ -73,7 +73,7 @@ describe('RemoveFromCartUseCase', () => {
     it('should handle repository errors gracefully', async () => {
       // Arrange
       const cartItemId = 'cart-item-1';
-      vi.mocked(mockCartRepository.removeItem).mockRejectedValue(new Error('Database connection failed'));
+      (mockCartRepository.removeItem as any).mockRejectedValue(new Error('Database connection failed'));
 
       // Act
       const result = await useCase.execute(cartItemId);
@@ -87,7 +87,7 @@ describe('RemoveFromCartUseCase', () => {
     it('should handle unknown errors', async () => {
       // Arrange
       const cartItemId = 'cart-item-1';
-      vi.mocked(mockCartRepository.removeItem).mockRejectedValue('Unknown error');
+      (mockCartRepository.removeItem as any).mockRejectedValue('Unknown error');
 
       // Act
       const result = await useCase.execute(cartItemId);
@@ -107,7 +107,7 @@ describe('RemoveFromCartUseCase', () => {
         'simple_id'
       ];
 
-      vi.mocked(mockCartRepository.removeItem).mockResolvedValue(true);
+      (mockCartRepository.removeItem as any).mockResolvedValue(true);
 
       // Act & Assert
       for (const cartItemId of validIds) {

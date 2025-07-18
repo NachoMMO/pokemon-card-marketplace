@@ -63,12 +63,12 @@ describe('CreateUserProfileUseCase', () => {
         balance: 0,
       });
 
-      vi.mocked(mockUserProfileRepository.findByDisplayName).mockResolvedValue(null);
-      vi.mocked(mockAuthService.signUp).mockResolvedValue({
+      (mockUserProfileRepository.findByDisplayName as any).mockResolvedValue(null);
+      (mockAuthService.signUp as any).mockResolvedValue({
         user: mockAuthUser,
         error: null
       });
-      vi.mocked(mockUserProfileRepository.create).mockResolvedValue(mockUserProfile);
+      (mockUserProfileRepository.create as any).mockResolvedValue(mockUserProfile);
 
       const result = await useCase.execute(registerData);
 
@@ -128,7 +128,7 @@ describe('CreateUserProfileUseCase', () => {
         balance: 0,
       });
 
-      vi.mocked(mockUserProfileRepository.findByDisplayName).mockResolvedValue(existingProfile);
+      (mockUserProfileRepository.findByDisplayName as any).mockResolvedValue(existingProfile);
 
       const result = await useCase.execute(registerData);
 
@@ -149,8 +149,8 @@ describe('CreateUserProfileUseCase', () => {
         displayName: 'testuser',
       };
 
-      vi.mocked(mockUserProfileRepository.findByDisplayName).mockResolvedValue(null);
-      vi.mocked(mockAuthService.signUp).mockResolvedValue({
+      (mockUserProfileRepository.findByDisplayName as any).mockResolvedValue(null);
+      (mockAuthService.signUp as any).mockResolvedValue({
         user: null,
         error: 'Email already exists'
       });
@@ -179,8 +179,8 @@ describe('CreateUserProfileUseCase', () => {
         emailConfirmed: false,
       };
 
-      vi.mocked(mockUserProfileRepository.findByDisplayName).mockResolvedValue(null);
-      vi.mocked(mockAuthService.signUp).mockResolvedValue({
+      (mockUserProfileRepository.findByDisplayName as any).mockResolvedValue(null);
+      (mockAuthService.signUp as any).mockResolvedValue({
         user: mockAuthUser,
         error: null
       });
@@ -204,7 +204,7 @@ describe('CreateUserProfileUseCase', () => {
         displayName: 'testuser',
       };
 
-      vi.mocked(mockUserProfileRepository.findByDisplayName).mockRejectedValue(
+      (mockUserProfileRepository.findByDisplayName as any).mockRejectedValue(
         new Error('Database connection failed')
       );
 

@@ -47,7 +47,7 @@ describe('GetCardDetailsUseCase', () => {
         updatedAt: new Date('2023-01-01T00:00:00Z')
       };
 
-      vi.mocked(mockCardRepository.findById!).mockResolvedValue(mockCard);
+      (mockCardRepository.findById! as any).mockResolvedValue(mockCard);
 
       const result = await useCase.execute(cardId);
 
@@ -76,7 +76,7 @@ describe('GetCardDetailsUseCase', () => {
     it('should return error when card not found', async () => {
       const cardId = 'nonexistent-card';
 
-      vi.mocked(mockCardRepository.findById!).mockResolvedValue(null);
+      (mockCardRepository.findById! as any).mockResolvedValue(null);
 
       const result = await useCase.execute(cardId);
 
@@ -88,7 +88,7 @@ describe('GetCardDetailsUseCase', () => {
     it('should handle repository errors gracefully', async () => {
       const cardId = 'card-123';
 
-      vi.mocked(mockCardRepository.findById!).mockRejectedValue(
+      (mockCardRepository.findById! as any).mockRejectedValue(
         new Error('Database connection failed')
       );
 

@@ -26,7 +26,7 @@ describe('ClearCartUseCase', () => {
     it('should clear cart successfully', async () => {
       // Arrange
       const userId = 'user-1';
-      vi.mocked(mockCartRepository.clearCart).mockResolvedValue(true);
+      (mockCartRepository.clearCart as any).mockResolvedValue(true);
 
       // Act
       const result = await useCase.execute(userId);
@@ -59,7 +59,7 @@ describe('ClearCartUseCase', () => {
     it('should return error when repository clear fails', async () => {
       // Arrange
       const userId = 'user-1';
-      vi.mocked(mockCartRepository.clearCart).mockResolvedValue(false);
+      (mockCartRepository.clearCart as any).mockResolvedValue(false);
 
       // Act
       const result = await useCase.execute(userId);
@@ -73,7 +73,7 @@ describe('ClearCartUseCase', () => {
     it('should handle repository errors gracefully', async () => {
       // Arrange
       const userId = 'user-1';
-      vi.mocked(mockCartRepository.clearCart).mockRejectedValue(new Error('Database connection failed'));
+      (mockCartRepository.clearCart as any).mockRejectedValue(new Error('Database connection failed'));
 
       // Act
       const result = await useCase.execute(userId);
@@ -87,7 +87,7 @@ describe('ClearCartUseCase', () => {
     it('should handle unknown errors', async () => {
       // Arrange
       const userId = 'user-1';
-      vi.mocked(mockCartRepository.clearCart).mockRejectedValue('Unknown error');
+      (mockCartRepository.clearCart as any).mockRejectedValue('Unknown error');
 
       // Act
       const result = await useCase.execute(userId);
@@ -107,7 +107,7 @@ describe('ClearCartUseCase', () => {
         'simple_user_id'
       ];
 
-      vi.mocked(mockCartRepository.clearCart).mockResolvedValue(true);
+      (mockCartRepository.clearCart as any).mockResolvedValue(true);
 
       // Act & Assert
       for (const userId of validIds) {
@@ -123,7 +123,7 @@ describe('ClearCartUseCase', () => {
     it('should clear cart even for users with no items', async () => {
       // Arrange
       const userId = 'empty-cart-user';
-      vi.mocked(mockCartRepository.clearCart).mockResolvedValue(true);
+      (mockCartRepository.clearCart as any).mockResolvedValue(true);
 
       // Act
       const result = await useCase.execute(userId);

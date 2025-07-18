@@ -56,8 +56,8 @@ describe('SearchCardsUseCase', () => {
         }
       ];
 
-      vi.mocked(mockCardRepository.searchMarketplace!).mockResolvedValue(mockCards);
-      vi.mocked(mockCardRepository.countMarketplace!).mockResolvedValue(1);
+      (mockCardRepository.searchMarketplace! as any).mockResolvedValue(mockCards);
+      (mockCardRepository.countMarketplace! as any).mockResolvedValue(1);
 
       const result = await useCase.execute(searchData);
 
@@ -87,8 +87,8 @@ describe('SearchCardsUseCase', () => {
         name: 'Charizard'
       };
 
-      vi.mocked(mockCardRepository.searchMarketplace!).mockResolvedValue([]);
-      vi.mocked(mockCardRepository.countMarketplace!).mockResolvedValue(0);
+      (mockCardRepository.searchMarketplace! as any).mockResolvedValue([]);
+      (mockCardRepository.countMarketplace! as any).mockResolvedValue(0);
 
       const result = await useCase.execute(searchData);
 
@@ -109,8 +109,8 @@ describe('SearchCardsUseCase', () => {
         rarity: 'Rare'
       };
 
-      vi.mocked(mockCardRepository.searchMarketplace!).mockResolvedValue([]);
-      vi.mocked(mockCardRepository.countMarketplace!).mockResolvedValue(0);
+      (mockCardRepository.searchMarketplace! as any).mockResolvedValue([]);
+      (mockCardRepository.countMarketplace! as any).mockResolvedValue(0);
 
       const result = await useCase.execute(searchData);
 
@@ -137,8 +137,8 @@ describe('SearchCardsUseCase', () => {
         offset: 10
       };
 
-      vi.mocked(mockCardRepository.searchMarketplace!).mockResolvedValue([]);
-      vi.mocked(mockCardRepository.countMarketplace!).mockResolvedValue(0);
+      (mockCardRepository.searchMarketplace! as any).mockResolvedValue([]);
+      (mockCardRepository.countMarketplace! as any).mockResolvedValue(0);
 
       const result = await useCase.execute(searchData);
 
@@ -163,8 +163,8 @@ describe('SearchCardsUseCase', () => {
 
       // Para límite 0, NO se valida porque el check es `if (limit && ...)`
       // pero sí se usa el valor 0 (no el default), así que el repositorio se llama con 0
-      vi.mocked(mockCardRepository.searchMarketplace!).mockResolvedValue([]);
-      vi.mocked(mockCardRepository.countMarketplace!).mockResolvedValue(0);
+      (mockCardRepository.searchMarketplace! as any).mockResolvedValue([]);
+      (mockCardRepository.countMarketplace! as any).mockResolvedValue(0);
 
       result = await useCase.execute({ limit: 0 });
       expect(result.success).toBe(true);
@@ -207,7 +207,7 @@ describe('SearchCardsUseCase', () => {
     });
 
     it('should handle repository search errors gracefully', async () => {
-      vi.mocked(mockCardRepository.searchMarketplace!).mockRejectedValue(
+      (mockCardRepository.searchMarketplace! as any).mockRejectedValue(
         new Error('Search query failed')
       );
 
@@ -218,8 +218,8 @@ describe('SearchCardsUseCase', () => {
     });
 
     it('should handle repository count errors gracefully', async () => {
-      vi.mocked(mockCardRepository.searchMarketplace!).mockResolvedValue([]);
-      vi.mocked(mockCardRepository.countMarketplace!).mockRejectedValue(
+      (mockCardRepository.searchMarketplace! as any).mockResolvedValue([]);
+      (mockCardRepository.countMarketplace! as any).mockRejectedValue(
         new Error('Count query failed')
       );
 
@@ -230,7 +230,7 @@ describe('SearchCardsUseCase', () => {
     });
 
     it('should handle unknown errors', async () => {
-      vi.mocked(mockCardRepository.searchMarketplace!).mockRejectedValue('Unknown error');
+      (mockCardRepository.searchMarketplace! as any).mockRejectedValue('Unknown error');
 
       const result = await useCase.execute({ name: 'Pikachu' });
 
@@ -245,8 +245,8 @@ describe('SearchCardsUseCase', () => {
         offset: 0
       };
 
-      vi.mocked(mockCardRepository.searchMarketplace!).mockResolvedValue([]);
-      vi.mocked(mockCardRepository.countMarketplace!).mockResolvedValue(15);
+      (mockCardRepository.searchMarketplace! as any).mockResolvedValue([]);
+      (mockCardRepository.countMarketplace! as any).mockResolvedValue(15);
 
       const result = await useCase.execute(searchData);
 
@@ -274,8 +274,8 @@ describe('SearchCardsUseCase', () => {
         updatedAt: new Date('2023-01-01T00:00:00Z')
       };
 
-      vi.mocked(mockCardRepository.searchMarketplace!).mockResolvedValue([mockCard]);
-      vi.mocked(mockCardRepository.countMarketplace!).mockResolvedValue(1);
+      (mockCardRepository.searchMarketplace! as any).mockResolvedValue([mockCard]);
+      (mockCardRepository.countMarketplace! as any).mockResolvedValue(1);
 
       const result = await useCase.execute({ name: 'Pikachu' });
 

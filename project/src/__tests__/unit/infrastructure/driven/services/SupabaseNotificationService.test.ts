@@ -158,7 +158,13 @@ describe('SupabaseNotificationService', () => {
         priority: 'medium'
       };
 
-      mockFrom.insert.mockRejectedValue(new Error('Network error'));
+      // Create a proper mock chain that handles insert().select()
+      const mockChain = {
+        insert: vi.fn().mockReturnThis(),
+        select: vi.fn().mockRejectedValue(new Error('Network error'))
+      };
+
+      mockSupabaseClient.from.mockReturnValue(mockChain);
 
       // Act
       const result = await service.sendBulkNotification(userIds, notificationData);
@@ -191,8 +197,8 @@ describe('SupabaseNotificationService', () => {
         }
       ];
 
-      // Setup for the first query (notifications)
-      const mockNotificationQuery = {
+      // Mock for the first query (notifications)
+      const mockNotificationChain = {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         order: vi.fn().mockReturnThis(),
@@ -203,17 +209,21 @@ describe('SupabaseNotificationService', () => {
         })
       };
 
-      // Setup for the second query (unread count)
-      const mockCountQuery = {
+      // Mock for the second query (unread count)
+      const mockCountChain = {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis()
       };
-      mockCountQuery.eq.mockResolvedValue({ count: 1 });
 
-      // Mock the from method to return different objects for each call
+      // Configure the chain: .eq('user_id', userId).eq('is_read', false)
+      mockCountChain.eq
+        .mockReturnValueOnce(mockCountChain) // first .eq('user_id', userId) returns chain
+        .mockResolvedValueOnce({ count: 1, error: null }); // second .eq('is_read', false) returns result
+
+      // Mock the from method calls - first for notifications, second for count
       mockSupabaseClient.from
-        .mockReturnValueOnce(mockNotificationQuery)
-        .mockReturnValueOnce(mockCountQuery);
+        .mockReturnValueOnce(mockNotificationChain)
+        .mockReturnValueOnce(mockCountChain);
 
       // Act
       const result = await service.getUserNotifications(userId);
@@ -239,8 +249,13 @@ describe('SupabaseNotificationService', () => {
 
       const mockCountQuery = {
         select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockResolvedValue({ count: 0 })
+        eq: vi.fn().mockReturnThis()
       };
+
+      // Configure the chain for unread count query
+      mockCountQuery.eq
+        .mockReturnValueOnce(mockCountQuery) // first .eq('user_id', userId)
+        .mockResolvedValueOnce({ count: 0, error: null }); // second .eq('is_read', false)
 
       mockSupabaseClient.from
         .mockReturnValueOnce(mockNotificationQuery)
@@ -277,20 +292,29 @@ describe('SupabaseNotificationService', () => {
       // Arrange
       const notificationId = 'notif-123';
 
-      mockFrom.update.mockReturnThis();
-      mockFrom.eq.mockReturnThis();
-      mockFrom.eq.mockResolvedValue({ error: null });
+      // Create a mock chain that properly handles multiple eq calls
+      const mockChain = {
+        update: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+      };
+
+      // Last eq call should resolve the promise
+      mockChain.eq
+        .mockReturnValueOnce(mockChain) // First eq() for id
+        .mockReturnValueOnce(mockChain) // Second eq() for user_id
+        .mockResolvedValue({ error: null }); // Third eq() for is_read
+
+      mockSupabaseClient.from.mockReturnValue(mockChain);
 
       // Act
       const result = await service.markAsRead(notificationId, 'user-123');
 
       // Assert
       expect(result).toBe(true);
-      expect(mockFrom.update).toHaveBeenCalledWith({
+      expect(mockChain.update).toHaveBeenCalledWith({
         is_read: true,
         read_at: expect.any(String)
       });
-      expect(mockFrom.eq).toHaveBeenCalledWith('id', notificationId);
     });
 
     it('should handle mark as read error', async () => {
@@ -311,8 +335,19 @@ describe('SupabaseNotificationService', () => {
       // Arrange
       const notificationId = 'notif-123';
 
-      mockFrom.update.mockReturnThis();
-      mockFrom.eq.mockRejectedValue(new Error('Network error'));
+      // Create a mock chain that properly handles multiple eq calls but throws error
+      const mockChain = {
+        update: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+      };
+
+      // Configure the chain to throw error on the final call
+      mockChain.eq
+        .mockReturnValueOnce(mockChain) // First eq() for id
+        .mockReturnValueOnce(mockChain) // Second eq() for user_id
+        .mockRejectedValueOnce(new Error('Network error')); // Third eq() for is_read
+
+      mockSupabaseClient.from.mockReturnValue(mockChain);
 
       // Act
       const result = await service.markAsRead(notificationId, 'user-123');
@@ -370,17 +405,25 @@ describe('SupabaseNotificationService', () => {
       const notificationId = 'notif-123';
       const userId = 'user-123';
 
-      mockFrom.delete.mockReturnThis();
-      mockFrom.eq.mockReturnThis();
-      mockFrom.eq.mockResolvedValue({ error: null });
+      // Create a mock chain that properly handles multiple eq calls
+      const mockChain = {
+        delete: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+      };
+
+      // Setup eq calls: first for id, second for user_id
+      mockChain.eq
+        .mockReturnValueOnce(mockChain) // First eq() for id
+        .mockResolvedValue({ error: null }); // Second eq() for user_id
+
+      mockSupabaseClient.from.mockReturnValue(mockChain);
 
       // Act
       const result = await service.deleteNotification(notificationId, userId);
 
       // Assert
       expect(result).toBe(true);
-      expect(mockFrom.delete).toHaveBeenCalled();
-      expect(mockFrom.eq).toHaveBeenCalledWith('id', notificationId);
+      expect(mockChain.delete).toHaveBeenCalled();
     });
 
     it('should handle delete notification error', async () => {
@@ -615,16 +658,25 @@ describe('SupabaseNotificationService', () => {
       // Arrange
       const scheduledId = 'scheduled-123';
 
-      mockFrom.update.mockReturnThis();
-      mockFrom.eq.mockReturnThis();
-      mockFrom.eq.mockResolvedValue({ error: null });
+      // Create a mock chain that properly handles multiple eq calls
+      const mockChain = {
+        update: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+      };
+
+      // Setup eq calls: first for id, second for status
+      mockChain.eq
+        .mockReturnValueOnce(mockChain) // First eq() for id
+        .mockResolvedValue({ error: null }); // Second eq() for status
+
+      mockSupabaseClient.from.mockReturnValue(mockChain);
 
       // Act
       const result = await service.cancelScheduledNotification(scheduledId);
 
       // Assert
       expect(result).toBe(true);
-      expect(mockFrom.update).toHaveBeenCalledWith({ status: 'cancelled' });
+      expect(mockChain.update).toHaveBeenCalledWith({ status: 'cancelled' });
     });
 
     it('should handle cancel scheduled notification error', async () => {

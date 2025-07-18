@@ -38,7 +38,7 @@ describe('SearchCardsAdvancedUseCase', () => {
       ];
       const mockResult = createPaginatedResult(mockCards);
 
-      vi.mocked(mockDataService.getMany).mockResolvedValue(mockResult);
+      (mockDataService.getMany as any).mockResolvedValue(mockResult);
 
       const result = await useCase.execute(
         { query: 'Pikachu' },
@@ -65,7 +65,7 @@ describe('SearchCardsAdvancedUseCase', () => {
       ];
       const mockResult = createPaginatedResult(mockCards);
 
-      vi.mocked(mockDataService.getMany).mockResolvedValue(mockResult);
+      (mockDataService.getMany as any).mockResolvedValue(mockResult);
 
       const result = await useCase.execute(
         {
@@ -98,7 +98,7 @@ describe('SearchCardsAdvancedUseCase', () => {
       ];
       const mockResult = createPaginatedResult(mockCards);
 
-      vi.mocked(mockDataService.getMany).mockResolvedValue(mockResult);
+      (mockDataService.getMany as any).mockResolvedValue(mockResult);
 
       await useCase.execute(
         { sortBy: 'price_desc' },
@@ -122,7 +122,7 @@ describe('SearchCardsAdvancedUseCase', () => {
       ];
       const mockResult = createPaginatedResult(mockCards, 2, 20);
 
-      vi.mocked(mockDataService.getMany).mockResolvedValue(mockResult);
+      (mockDataService.getMany as any).mockResolvedValue(mockResult);
 
       const result = await useCase.execute(
         {},
@@ -146,7 +146,7 @@ describe('SearchCardsAdvancedUseCase', () => {
       ];
       const mockResult = createPaginatedResult(mockCards);
 
-      vi.mocked(mockDataService.getMany).mockResolvedValue(mockResult);
+      (mockDataService.getMany as any).mockResolvedValue(mockResult);
 
       await useCase.execute(
         { minPrice: 5, maxPrice: 15 },
@@ -175,7 +175,7 @@ describe('SearchCardsAdvancedUseCase', () => {
     it('should handle empty results', async () => {
       const mockResult = createPaginatedResult([]);
 
-      vi.mocked(mockDataService.getMany).mockResolvedValue(mockResult);
+      (mockDataService.getMany as any).mockResolvedValue(mockResult);
 
       const result = await useCase.execute(
         { query: 'NonexistentCard' },
@@ -194,7 +194,7 @@ describe('SearchCardsAdvancedUseCase', () => {
       ];
       const mockResult = createPaginatedResult(mockCards);
 
-      vi.mocked(mockDataService.getMany).mockResolvedValue(mockResult);
+      (mockDataService.getMany as any).mockResolvedValue(mockResult);
 
       await useCase.execute(
         { sellerId: 'seller-123' },
@@ -222,7 +222,7 @@ describe('SearchCardsAdvancedUseCase', () => {
       ];
       const mockResult = createPaginatedResult(mockCards);
 
-      vi.mocked(mockDataService.getMany).mockResolvedValue(mockResult);
+      (mockDataService.getMany as any).mockResolvedValue(mockResult);
 
       await useCase.execute(
         { rarity: ['common', 'rare'] },
