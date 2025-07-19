@@ -113,6 +113,19 @@ describe('SupabaseUserRepository', () => {
       expect(result).toBeInstanceOf(User);
       expect(result?.emailConfirmed).toBe(false);
     });
+
+    it('should handle unexpected errors and return null', async () => {
+      // Arrange
+      const userId = 'user-123';
+
+      mockSupabaseClient.auth.admin.getUserById.mockRejectedValue(new Error('Network error'));
+
+      // Act
+      const result = await repository.findById(userId);
+
+      // Assert
+      expect(result).toBeNull();
+    });
   });
 
   describe('findByEmail', () => {
@@ -125,6 +138,26 @@ describe('SupabaseUserRepository', () => {
 
       // Assert
       expect(result).toBeNull();
+    });
+
+    it('should handle unexpected errors and return null', async () => {
+      // Arrange
+      const email = 'test@example.com';
+
+      // Force an error by mocking console.warn to throw
+      const originalWarn = console.warn;
+      console.warn = vi.fn(() => {
+        throw new Error('Unexpected error');
+      });
+
+      // Act
+      const result = await repository.findByEmail(email);
+
+      // Assert
+      expect(result).toBeNull();
+
+      // Restore console.warn
+      console.warn = originalWarn;
     });
   });
 
@@ -169,6 +202,17 @@ describe('SupabaseUserRepository', () => {
         data: null,
         error: new Error('Auth error')
       });
+
+      // Act
+      const result = await repository.getCurrentUser();
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it('should handle unexpected errors and return null', async () => {
+      // Arrange
+      mockSupabaseClient.auth.getUser.mockRejectedValue(new Error('Network error'));
 
       // Act
       const result = await repository.getCurrentUser();

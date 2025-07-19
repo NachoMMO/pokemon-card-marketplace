@@ -242,5 +242,84 @@ describe('SearchCardsAdvancedUseCase', () => {
         })
       );
     });
+
+    it('should handle errors gracefully', async () => {
+      // Arrange
+      (mockDataService.getMany as any).mockRejectedValue(new Error('Database error'));
+
+      // Act
+      const result = await useCase.execute(
+        { query: 'Pikachu' },
+        { page: 1, limit: 20 }
+      );
+
+      // Assert
+      expect(result.cards).toEqual([]);
+      expect(result.totalCount).toBe(0);
+      expect(result.page).toBe(1);
+      expect(result.totalPages).toBe(0);
+      expect(result.hasNext).toBe(false);
+      expect(result.hasPrev).toBe(false);
+    });
+
+    it('should handle different sort orders', async () => {
+      const mockCards = [{ id: '1', name: 'Pikachu', price: 10 }];
+      const mockResult = createPaginatedResult(mockCards);
+      (mockDataService.getMany as any).mockResolvedValue(mockResult);
+
+      // Test price ascending
+      await useCase.execute({ sortBy: 'price_asc' }, { page: 1, limit: 20 });
+      expect(mockDataService.getMany).toHaveBeenLastCalledWith(
+        'cards',
+        expect.objectContaining({
+          orderBy: { column: 'price', ascending: true }
+        })
+      );
+
+      // Test name ascending
+      await useCase.execute({ sortBy: 'name_asc' }, { page: 1, limit: 20 });
+      expect(mockDataService.getMany).toHaveBeenLastCalledWith(
+        'cards',
+        expect.objectContaining({
+          orderBy: { column: 'name', ascending: true }
+        })
+      );
+
+      // Test name descending
+      await useCase.execute({ sortBy: 'name_desc' }, { page: 1, limit: 20 });
+      expect(mockDataService.getMany).toHaveBeenLastCalledWith(
+        'cards',
+        expect.objectContaining({
+          orderBy: { column: 'name', ascending: false }
+        })
+      );
+
+      // Test oldest
+      await useCase.execute({ sortBy: 'oldest' }, { page: 1, limit: 20 });
+      expect(mockDataService.getMany).toHaveBeenLastCalledWith(
+        'cards',
+        expect.objectContaining({
+          orderBy: { column: 'created_at', ascending: true }
+        })
+      );
+
+      // Test default case (newest)
+      await useCase.execute({ sortBy: 'newest' }, { page: 1, limit: 20 });
+      expect(mockDataService.getMany).toHaveBeenLastCalledWith(
+        'cards',
+        expect.objectContaining({
+          orderBy: { column: 'created_at', ascending: false }
+        })
+      );
+
+      // Test unknown sortBy option (should default to newest)
+      await useCase.execute({ sortBy: 'unknown_sort' as any }, { page: 1, limit: 20 });
+      expect(mockDataService.getMany).toHaveBeenLastCalledWith(
+        'cards',
+        expect.objectContaining({
+          orderBy: { column: 'created_at', ascending: false }
+        })
+      );
+    });
   });
 });

@@ -150,6 +150,32 @@ describe('GetDashboardStatsUseCase', () => {
     expect(result.salesGrowth.growth).toBe(50); // (60-40)/40 * 100 = 50%
   });
 
+  it('should calculate growth percentage correctly', async () => {
+    // Arrange
+    mockDataService.count
+      .mockResolvedValueOnce(0) // totalCards
+      .mockResolvedValueOnce(0) // totalUsers
+      .mockResolvedValueOnce(0) // activeSales
+      .mockResolvedValueOnce(0) // totalSales
+      .mockResolvedValueOnce(20) // usersThisMonth
+      .mockResolvedValueOnce(10) // usersLastMonth
+      .mockResolvedValueOnce(60) // salesThisMonth
+      .mockResolvedValueOnce(40); // salesLastMonth
+
+    mockDataService.rpc
+      .mockResolvedValueOnce({ success: true, data: { total_revenue: 0 } }) // revenue RPC
+      .mockResolvedValueOnce({ success: true, data: [] }); // popular cards RPC
+
+    mockDataService.getMany.mockResolvedValue({ data: [] }); // recent transactions
+
+    // Act
+    const result = await useCase.execute();
+
+    // Assert
+    expect(result.userGrowth.growth).toBe(100); // (20-10)/10 * 100 = 100%
+    expect(result.salesGrowth.growth).toBe(50); // (60-40)/40 * 100 = 50%
+  });
+
   it('should handle zero previous values in growth calculation', async () => {
     // Arrange
     mockDataService.count

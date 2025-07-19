@@ -593,7 +593,7 @@ describe('SupabaseCardRepository', () => {
         eq: vi.fn().mockReturnThis()
       };
       mockFrom.select.mockReturnValue(mockQuery);
-      mockQuery.eq.mockResolvedValue({ count: 5, error: null });
+      mockQuery.ilike.mockResolvedValue({ count: 5, error: null });
 
       // Act
       const result = await repository.countMarketplace(criteria);
@@ -614,7 +614,7 @@ describe('SupabaseCardRepository', () => {
         eq: vi.fn().mockReturnThis()
       };
       mockFrom.select.mockReturnValue(mockQuery);
-      mockQuery.eq.mockResolvedValue({ count: 3, error: null });
+      mockQuery.contains.mockResolvedValue({ count: 3, error: null });
 
       // Act
       const result = await repository.countMarketplace(criteria);
@@ -732,7 +732,7 @@ describe('SupabaseCardRepository', () => {
         eq: vi.fn().mockReturnThis()
       };
       mockFrom.select.mockReturnValue(mockQuery);
-      mockQuery.eq.mockRejectedValue(new Error('Network error'));
+      mockQuery.ilike.mockRejectedValue(new Error('Network error'));
 
       // Act
       const result = await repository.countMarketplace(criteria);
@@ -748,7 +748,12 @@ describe('SupabaseCardRepository', () => {
       const sellerId = 'seller-123';
       const mockRows = [createMockCardRow()];
 
-      mockFrom.range.mockResolvedValue({ data: mockRows, error: null });
+      const mockQuery = {
+        select: vi.fn().mockReturnThis(),
+        range: vi.fn()
+      };
+      mockSupabaseClient.from.mockReturnValue(mockQuery);
+      mockQuery.range.mockResolvedValue({ data: mockRows, error: null });
 
       // Act
       const result = await repository.findBySeller(sellerId);
@@ -756,7 +761,7 @@ describe('SupabaseCardRepository', () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(Card);
-      expect(mockFrom.range).toHaveBeenCalledWith(0, 19);
+      expect(mockQuery.range).toHaveBeenCalledWith(0, 19);
     });
 
     it('should find cards by seller with custom pagination', async () => {
@@ -766,21 +771,31 @@ describe('SupabaseCardRepository', () => {
       const offset = 5;
       const mockRows = [createMockCardRow()];
 
-      mockFrom.range.mockResolvedValue({ data: mockRows, error: null });
+      const mockQuery = {
+        select: vi.fn().mockReturnThis(),
+        range: vi.fn()
+      };
+      mockSupabaseClient.from.mockReturnValue(mockQuery);
+      mockQuery.range.mockResolvedValue({ data: mockRows, error: null });
 
       // Act
       const result = await repository.findBySeller(sellerId, limit, offset);
 
       // Assert
       expect(result).toHaveLength(1);
-      expect(mockFrom.range).toHaveBeenCalledWith(5, 14);
+      expect(mockQuery.range).toHaveBeenCalledWith(5, 14);
     });
 
     it('should return empty array when no cards found', async () => {
       // Arrange
       const sellerId = 'seller-123';
 
-      mockFrom.range.mockResolvedValue({ data: [], error: null });
+      const mockQuery = {
+        select: vi.fn().mockReturnThis(),
+        range: vi.fn()
+      };
+      mockSupabaseClient.from.mockReturnValue(mockQuery);
+      mockQuery.range.mockResolvedValue({ data: [], error: null });
 
       // Act
       const result = await repository.findBySeller(sellerId);
@@ -793,7 +808,12 @@ describe('SupabaseCardRepository', () => {
       // Arrange
       const sellerId = 'seller-123';
 
-      mockFrom.range.mockResolvedValue({ data: null, error: new Error('Database error') });
+      const mockQuery = {
+        select: vi.fn().mockReturnThis(),
+        range: vi.fn()
+      };
+      mockSupabaseClient.from.mockReturnValue(mockQuery);
+      mockQuery.range.mockResolvedValue({ data: null, error: new Error('Database error') });
 
       // Act
       const result = await repository.findBySeller(sellerId);
@@ -806,7 +826,12 @@ describe('SupabaseCardRepository', () => {
       // Arrange
       const sellerId = 'seller-123';
 
-      mockFrom.range.mockRejectedValue(new Error('Network error'));
+      const mockQuery = {
+        select: vi.fn().mockReturnThis(),
+        range: vi.fn()
+      };
+      mockSupabaseClient.from.mockReturnValue(mockQuery);
+      mockQuery.range.mockRejectedValue(new Error('Network error'));
 
       // Act
       const result = await repository.findBySeller(sellerId);
@@ -1204,7 +1229,13 @@ describe('SupabaseCardRepository', () => {
         updated_at: '2023-01-01T00:00:00Z'
       };
 
-      mockFrom.single.mockResolvedValue({ data: mockRow, error: null });
+      const mockQuery = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn()
+      };
+      mockSupabaseClient.from.mockReturnValue(mockQuery);
+      mockQuery.single.mockResolvedValue({ data: mockRow, error: null });
 
       // Act
       const result = await repository.findById(cardId);
@@ -1252,7 +1283,13 @@ describe('SupabaseCardRepository', () => {
         updated_at: '2023-01-01T00:00:00Z'
       };
 
-      mockFrom.single.mockResolvedValue({ data: mockRow, error: null });
+      const mockQuery = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn()
+      };
+      mockSupabaseClient.from.mockReturnValue(mockQuery);
+      mockQuery.single.mockResolvedValue({ data: mockRow, error: null });
 
       // Act
       const result = await repository.findById(cardId);

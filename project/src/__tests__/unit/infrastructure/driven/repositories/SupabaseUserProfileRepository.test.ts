@@ -27,18 +27,33 @@ function createMockUserProfileRow() {
     first_name: 'John',
     last_name: 'Doe',
     display_name: 'JohnDoe',
-    email: 'john@example.com',
     balance: 100,
     role: 'BUYER',
-    profile_visibility: true,
-    show_online_status: true,
-    allow_messages: true,
-    email_notifications: true,
-    push_notifications: true,
-    sms_notifications: true,
-    trade_updates: true,
+    trading_reputation: 0,
+    total_trades: 0,
+    successful_trades: 0,
     created_at: '2023-01-01T00:00:00Z',
-    updated_at: '2023-01-01T00:00:00Z'
+    updated_at: '2023-01-01T00:00:00Z',
+    date_of_birth: undefined,
+    address: undefined,
+    city: undefined,
+    postal_code: undefined,
+    country: undefined,
+    bio: undefined,
+    avatar_url: undefined,
+    location: undefined,
+    website: undefined,
+    social_media_links: {},
+    privacy_settings: {
+      profile_public: true,
+      collection_public: true,
+      trade_history_public: true
+    },
+    notification_preferences: {
+      email_notifications: true,
+      push_notifications: true,
+      trade_updates: true
+    }
   };
 }
 
@@ -172,6 +187,19 @@ describe('SupabaseUserProfileRepository', () => {
       // Assert
       expect(result).toBeNull();
     });
+
+    it('should handle unexpected errors and return null', async () => {
+      // Arrange
+      const profileId = 'profile-123';
+
+      mockFrom.single.mockRejectedValue(new Error('Network error'));
+
+      // Act
+      const result = await repository.findById(profileId);
+
+      // Assert
+      expect(result).toBeNull();
+    });
   });
 
   describe('findByUserId', () => {
@@ -216,6 +244,19 @@ describe('SupabaseUserProfileRepository', () => {
       // Assert
       expect(result).toBeNull();
     });
+
+    it('should handle unexpected errors and return null', async () => {
+      // Arrange
+      const userId = 'user-1';
+
+      mockFrom.single.mockRejectedValue(new Error('Network error'));
+
+      // Act
+      const result = await repository.findByUserId(userId);
+
+      // Assert
+      expect(result).toBeNull();
+    });
   });
 
   describe('findByDisplayName', () => {
@@ -253,6 +294,19 @@ describe('SupabaseUserProfileRepository', () => {
       const displayName = 'JohnDoe';
 
       mockFrom.single.mockResolvedValue({ data: null, error: new Error('Database error') });
+
+      // Act
+      const result = await repository.findByDisplayName(displayName);
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it('should handle unexpected errors and return null', async () => {
+      // Arrange
+      const displayName = 'JohnDoe';
+
+      mockFrom.single.mockRejectedValue(new Error('Network error'));
 
       // Act
       const result = await repository.findByDisplayName(displayName);
@@ -322,6 +376,85 @@ describe('SupabaseUserProfileRepository', () => {
       // Act & Assert
       await expect(repository.update(profileId, updates)).rejects.toThrow('Error al actualizar perfil de usuario: Update failed');
     });
+
+    it('should update with privacy settings successfully', async () => {
+      // Arrange
+      const profileId = 'profile-123';
+      const updates = {
+        privacySettings: new PrivacySettings(false, true, false)
+      };
+      const mockUpdatedRow = createMockUserProfileRow();
+
+      mockFrom.single.mockResolvedValue({ data: mockUpdatedRow, error: null });
+
+      // Act
+      const result = await repository.update(profileId, updates);
+
+      // Assert
+      expect(result).toBeInstanceOf(UserProfile);
+      expect(mockFrom.update).toHaveBeenCalledWith(expect.objectContaining({
+        privacy_settings: {
+          profile_public: false,
+          collection_public: true,
+          trade_history_public: false
+        }
+      }));
+    });
+
+    it('should update with notification preferences successfully', async () => {
+      // Arrange
+      const profileId = 'profile-123';
+      const updates = {
+        notificationPreferences: new NotificationPreferences(false, true, false)
+      };
+      const mockUpdatedRow = createMockUserProfileRow();
+
+      mockFrom.single.mockResolvedValue({ data: mockUpdatedRow, error: null });
+
+      // Act
+      const result = await repository.update(profileId, updates);
+
+      // Assert
+      expect(result).toBeInstanceOf(UserProfile);
+      expect(mockFrom.update).toHaveBeenCalledWith(expect.objectContaining({
+        notification_preferences: {
+          email_notifications: false,
+          push_notifications: true,
+          trade_updates: false
+        }
+      }));
+    });
+
+    it('should update with social media links successfully', async () => {
+      // Arrange
+      const profileId = 'profile-123';
+      const updates = {
+        socialMediaLinks: { twitter: '@johndoe', instagram: 'johndoe' }
+      };
+      const mockUpdatedRow = createMockUserProfileRow();
+
+      mockFrom.single.mockResolvedValue({ data: mockUpdatedRow, error: null });
+
+      // Act
+      const result = await repository.update(profileId, updates);
+
+      // Assert
+      expect(result).toBeInstanceOf(UserProfile);
+      expect(mockFrom.update).toHaveBeenCalledWith(expect.objectContaining({
+        social_media_links: { twitter: '@johndoe', instagram: 'johndoe' }
+      }));
+    });
+
+    it('should handle unexpected errors during update', async () => {
+      // Arrange
+      const profileId = 'profile-123';
+      const updates = { firstName: 'UpdatedName' };
+
+      mockFrom.single.mockRejectedValue(new Error('Network error'));
+
+      // Act & Assert
+      await expect(repository.update(profileId, updates)).rejects.toThrow('Network error');
+    });
   });
 
   describe('delete', () => {
@@ -345,6 +478,19 @@ describe('SupabaseUserProfileRepository', () => {
       const profileId = 'profile-123';
 
       mockFrom.eq.mockResolvedValue({ error: new Error('Delete failed') });
+
+      // Act
+      const result = await repository.delete(profileId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it('should handle unexpected errors during delete', async () => {
+      // Arrange
+      const profileId = 'profile-123';
+
+      mockFrom.eq.mockRejectedValue(new Error('Network error'));
 
       // Act
       const result = await repository.delete(profileId);
