@@ -6,6 +6,9 @@ export * from './dashboard';
 export * from './user';
 export * from './transaction';
 
+// Export the main use case for user account creation
+export { CreateUserAccountUseCase } from './CreateUserAccountUseCase';
+
 // Export specific use cases that use DataService
 export { SearchCardsAdvancedUseCase } from './card/SearchCardsAdvancedUseCase';
 export { GetDashboardStatsUseCase } from './dashboard/GetDashboardStatsUseCase';

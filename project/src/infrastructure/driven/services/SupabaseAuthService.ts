@@ -182,6 +182,7 @@ export class SupabaseAuthService implements ISupabaseAuthService {
       'Email address is invalid': 'La dirección de email es inválida',
       'Password is too weak': 'La contraseña es muy débil',
       'Email rate limit exceeded': 'Límite de emails excedido',
+      'User already registered': 'This email is already registered',
     };
 
     return errorMap[error] || error;

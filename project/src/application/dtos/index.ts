@@ -1,4 +1,5 @@
 export * from './AuthDTO';
+export * from './CreateUserAccountRequest';
 export * from './UserProfileDTO';
 export * from './CardDTO';
 export * from './CollectionDTO';

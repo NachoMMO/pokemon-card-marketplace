@@ -38,8 +38,56 @@ export class UserProfile {
     bio?: string;
     avatarUrl?: string;
     location?: string;
-  }): UserProfile {
+  }): UserProfile;
+
+  // Overloaded version for user account creation with full name
+  static create(data: {
+    name: string;
+    balance?: number;
+    bio?: string;
+    avatarUrl?: string;
+    location?: string;
+  }): UserProfile;
+
+  static create(data: any): UserProfile {
     const now = new Date();
+
+    // Handle full name input (user registration scenario)
+    if (data.name && !data.firstName && !data.lastName) {
+      const nameParts = data.name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      const displayName = data.name.replace(/\s+/g, '').toLowerCase() + Math.floor(Math.random() * 1000);
+
+      return new UserProfile(
+        crypto.randomUUID(), // Generate new ID
+        '', // userId will be set when persisting
+        firstName,
+        lastName,
+        displayName,
+        data.balance || 0,
+        UserRole.BUYER, // Default role
+        0, // Default trading reputation
+        0, // Default total trades
+        0, // Default successful trades
+        now, // Created at
+        now, // Updated at
+        undefined, // Date of birth
+        undefined, // Address
+        undefined, // City
+        undefined, // Postal code
+        undefined, // Country
+        data.bio,
+        data.avatarUrl,
+        data.location,
+        undefined, // Website
+        {}, // Social media links
+        new PrivacySettings(),
+        new NotificationPreferences()
+      );
+    }
+
+    // Handle existing format (firstName + lastName)
     return new UserProfile(
       crypto.randomUUID(), // Generate new ID
       data.userId,

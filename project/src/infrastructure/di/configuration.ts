@@ -26,6 +26,7 @@ import {
 import { CachedDataService } from '../../application/services/CachedDataService';
 import { DataServiceHelpers } from '../driven/services/helpers/DataServiceHelpers';
 import {
+  CreateUserAccountUseCase,
   CreateUserProfileUseCase,
   LoginUserUseCase,
   GetCurrentUserUseCase,
@@ -77,10 +78,16 @@ export function configureDependencies(): void {
   // Registrar use cases
   const authService = container.get<ISupabaseAuthService>(DEPENDENCIES.SUPABASE_AUTH_SERVICE);
   const userProfileRepository = container.get<IUserProfileRepository>(DEPENDENCIES.USER_PROFILE_REPOSITORY);
+  const userRepository = container.get<any>(DEPENDENCIES.USER_REPOSITORY);
   const cartRepository = container.get<ICartRepository>(DEPENDENCIES.CART_REPOSITORY);
   const collectionRepository = container.get<ICollectionRepository>(DEPENDENCIES.COLLECTION_REPOSITORY);
   const cardRepository = container.get<ICardRepository>(DEPENDENCIES.CARD_REPOSITORY);
   const dataService = container.get<IDataService>(DEPENDENCIES.DATA_SERVICE);
+
+  container.register(
+    DEPENDENCIES.CREATE_USER_ACCOUNT_USE_CASE,
+    new CreateUserAccountUseCase(authService, userRepository, userProfileRepository)
+  );
 
   container.register(
     DEPENDENCIES.CREATE_USER_PROFILE_USE_CASE,

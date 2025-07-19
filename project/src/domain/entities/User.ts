@@ -8,4 +8,19 @@ export class User {
     public readonly createdAt: Date, // From auth.users.created_at
     public readonly updatedAt: Date  // From auth.users.updated_at
   ) {}
+
+  // Factory method for creating a new User (domain creation, not persistence)
+  static create(data: {
+    email: string;
+    status?: string;
+  }): User {
+    const now = new Date()
+    return new User(
+      crypto.randomUUID(),
+      data.email,
+      data.status !== 'pending_verification', // false if pending verification
+      now,
+      now
+    )
+  }
 }

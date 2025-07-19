@@ -47,6 +47,7 @@ export const DEPENDENCIES = {
   DATA_SERVICE: 'DataService',
 
   // Use Cases
+  CREATE_USER_ACCOUNT_USE_CASE: 'CreateUserAccountUseCase',
   CREATE_USER_PROFILE_USE_CASE: 'CreateUserProfileUseCase',
   LOGIN_USER_USE_CASE: 'LoginUserUseCase',
   GET_CURRENT_USER_USE_CASE: 'GetCurrentUserUseCase',
