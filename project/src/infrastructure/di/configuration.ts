@@ -36,6 +36,7 @@ import {
   GetDashboardStatsUseCase,
   ProcessCardTransactionUseCase
 } from '../../application/use-cases';
+import { CompleteUserOnboardingUseCase } from '../../application/use-cases/CompleteUserOnboardingUseCase';
 import type { ISupabaseAuthService, IDataService } from '../../application/ports/services';
 import type {
   IUserProfileRepository,
@@ -102,6 +103,11 @@ export function configureDependencies(): void {
   container.register(
     DEPENDENCIES.GET_CURRENT_USER_USE_CASE,
     new GetCurrentUserUseCase(authService, userProfileRepository)
+  );
+
+  container.register(
+    DEPENDENCIES.COMPLETE_USER_ONBOARDING_USE_CASE,
+    new CompleteUserOnboardingUseCase(authService, userProfileRepository)
   );
 
   container.register(

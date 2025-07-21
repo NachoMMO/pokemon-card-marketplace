@@ -11,12 +11,14 @@
           <h2>Próximos pasos:</h2>
           <ul>
             <li>Confirma tu email haciendo clic en el enlace que te enviamos</li>
+            <li>Regresa aquí e inicia sesión</li>
             <li>Completa tu perfil de usuario</li>
             <li>¡Comienza a coleccionar cartas Pokémon!</li>
           </ul>
         </div>
         <div class="actions">
-          <router-link to="/" class="btn btn-primary">Ir al inicio</router-link>
+          <router-link to="/login" class="btn btn-primary">Sign In</router-link>
+          <router-link to="/" class="btn btn-secondary">Go to Homepage</router-link>
         </div>
       </div>
     </div>
@@ -89,12 +91,15 @@
 
 .actions {
   text-align: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .btn {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  background-color: #007bff;
   color: white;
   text-decoration: none;
   border-radius: 4px;
@@ -103,7 +108,7 @@
 }
 
 .btn:hover {
-  background-color: #0056b3;
+  transform: translateY(-1px);
 }
 
 .btn-primary {
@@ -112,5 +117,13 @@
 
 .btn-primary:hover {
   background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
 }
 </style>

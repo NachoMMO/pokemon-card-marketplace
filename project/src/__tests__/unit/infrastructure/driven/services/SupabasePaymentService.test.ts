@@ -240,6 +240,20 @@ describe('SupabasePaymentService', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('Payment not found');
     });
+
+    it('should handle unexpected errors in confirm payment', async () => {
+      const paymentIntentId = 'pi_123';
+
+      // Mock unexpected error
+      mockSingle.mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+
+      const result = await paymentService.confirmPayment(paymentIntentId);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database connection failed');
+    });
   });
 
   describe('cancelPaymentIntent', () => {
@@ -390,6 +404,22 @@ describe('SupabasePaymentService', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Refund creation failed');
+    });
+
+    it('should handle unexpected errors in process refund', async () => {
+      const refundData: RefundDTO = {
+        paymentIntentId: 'pi_123'
+      };
+
+      // Mock unexpected error
+      mockSingle.mockImplementation(() => {
+        throw new Error('Network connection failed');
+      });
+
+      const result = await paymentService.processRefund(refundData);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Network connection failed');
     });
   });
 
@@ -544,6 +574,22 @@ describe('SupabasePaymentService', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('Insert failed');
     });
+
+    it('should handle unexpected errors in add payment method', async () => {
+      const customerId = 'cus_123';
+      const paymentMethodData = {
+        type: 'card'
+      };
+
+      mockSingle.mockImplementation(() => {
+        throw new Error('Network failure');
+      });
+
+      const result = await paymentService.addPaymentMethod(customerId, paymentMethodData);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Network failure');
+    });
   });
 
   describe('removePaymentMethod', () => {
@@ -565,6 +611,18 @@ describe('SupabasePaymentService', () => {
       mockEq.mockResolvedValue({
         data: null,
         error: { message: 'Update failed' }
+      });
+
+      const result = await paymentService.removePaymentMethod(paymentMethodId);
+
+      expect(result).toBe(false);
+    });
+
+    it('should handle unexpected errors in remove payment method', async () => {
+      const paymentMethodId = 'pm_123';
+
+      mockUpdate.mockImplementation(() => {
+        throw new Error('Database connection lost');
       });
 
       const result = await paymentService.removePaymentMethod(paymentMethodId);
@@ -614,6 +672,19 @@ describe('SupabasePaymentService', () => {
       mockEq.mockResolvedValueOnce({
         data: null,
         error: { message: 'Update failed' }
+      });
+
+      const result = await paymentService.setDefaultPaymentMethod(customerId, paymentMethodId);
+
+      expect(result).toBe(false);
+    });
+
+    it('should handle unexpected errors in set default payment method', async () => {
+      const customerId = 'cus_123';
+      const paymentMethodId = 'pm_123';
+
+      mockUpdate.mockImplementation(() => {
+        throw new Error('Connection timeout');
       });
 
       const result = await paymentService.setDefaultPaymentMethod(customerId, paymentMethodId);
@@ -680,6 +751,24 @@ describe('SupabasePaymentService', () => {
       });
 
       await expect(paymentService.getWalletBalance(userId)).rejects.toThrow();
+    });
+
+    it('should handle error when creating new wallet', async () => {
+      const userId = 'user_123';
+      const currency = 'USD';
+
+      // First call fails with PGRST116 (not found)
+      mockSingle.mockResolvedValueOnce({
+        data: null,
+        error: { code: 'PGRST116' }
+      });
+      // Second call fails to create new wallet
+      mockSingle.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Failed to create wallet' }
+      });
+
+      await expect(paymentService.getWalletBalance(userId, currency)).rejects.toThrow();
     });
   });
 
@@ -766,6 +855,21 @@ describe('SupabasePaymentService', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('Balance update failed');
     });
+
+    it('should handle unexpected errors in credit wallet', async () => {
+      const userId = 'user_123';
+      const amount = 500;
+      const description = 'Payment received';
+
+      mockSingle.mockImplementation(() => {
+        throw new Error('Database unavailable');
+      });
+
+      const result = await paymentService.creditWallet(userId, amount, description);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database unavailable');
+    });
   });
 
   describe('debitWallet', () => {
@@ -831,6 +935,88 @@ describe('SupabasePaymentService', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Fondos insuficientes');
+    });
+
+    it('should handle transaction creation error in debit wallet', async () => {
+      const userId = 'user_123';
+      const amount = 300;
+      const description = 'Purchase made';
+
+      // Mock sufficient balance
+      vi.spyOn(paymentService, 'getWalletBalance').mockResolvedValue({
+        balance: 1500,
+        currency: 'USD',
+        lastUpdated: new Date()
+      });
+
+      // Mock transaction creation error
+      mockSingle.mockResolvedValue({
+        data: null,
+        error: { message: 'Transaction creation failed' }
+      });
+
+      const result = await paymentService.debitWallet(userId, amount, description);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Transaction creation failed');
+    });
+
+    it('should handle balance update error in debit wallet', async () => {
+      const userId = 'user_123';
+      const amount = 300;
+      const description = 'Purchase made';
+
+      const mockTransaction = {
+        id: 'txn_456',
+        user_id: userId,
+        type: 'debit',
+        amount,
+        currency: 'USD',
+        description,
+        reference_id: null,
+        created_at: '2023-01-15T10:00:00Z'
+      };
+
+      // Mock sufficient balance
+      vi.spyOn(paymentService, 'getWalletBalance').mockResolvedValue({
+        balance: 1500,
+        currency: 'USD',
+        lastUpdated: new Date()
+      });
+
+      // Mock successful transaction creation but failed balance update
+      mockSingle.mockResolvedValue({ data: mockTransaction, error: null });
+      (mockSupabase.rpc as any).mockResolvedValue({
+        data: null,
+        error: { message: 'Balance update failed' }
+      });
+
+      const result = await paymentService.debitWallet(userId, amount, description);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Balance update failed');
+    });
+
+    it('should handle unexpected errors in debit wallet', async () => {
+      const userId = 'user_123';
+      const amount = 300;
+      const description = 'Purchase made';
+
+      // Mock balance check success but unexpected error in transaction
+      vi.spyOn(paymentService, 'getWalletBalance').mockResolvedValue({
+        balance: 1500,
+        currency: 'USD',
+        lastUpdated: new Date()
+      });
+
+      mockSingle.mockImplementation(() => {
+        throw new Error('Transaction service down');
+      });
+
+      const result = await paymentService.debitWallet(userId, amount, description);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Transaction service down');
     });
   });
 
@@ -967,6 +1153,23 @@ describe('SupabasePaymentService', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('Credit failed');
       expect(creditSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle unexpected errors in transfer funds', async () => {
+      const fromUserId = 'user_123';
+      const toUserId = 'user_456';
+      const amount = 200;
+      const description = 'Payment for cards';
+
+      // Mock getWalletBalance to throw an unexpected error
+      vi.spyOn(paymentService, 'getWalletBalance').mockImplementation(() => {
+        throw new Error('Service temporarily unavailable');
+      });
+
+      const result = await paymentService.transferFunds(fromUserId, toUserId, amount, description);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Service temporarily unavailable');
     });
   });
 

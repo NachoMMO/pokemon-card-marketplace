@@ -9,7 +9,7 @@ import { CreateUserAccountRequest } from '../dtos/CreateUserAccountRequest'
 
 export interface CreateUserAccountResponse {
   isSuccess: boolean
-  data?: CompleteUser
+  data?: User
   error?: string
 }
 
@@ -63,28 +63,14 @@ export class CreateUserAccountUseCase {
         }
       }
 
-      // Create user profile in database with the real user ID
-      const nameParts = request.name.trim().split(' ')
-      const firstName = nameParts[0] || ''
-      const lastName = nameParts.slice(1).join(' ') || ''
-      const displayName = request.name.replace(/\s+/g, '').toLowerCase() + Math.floor(Math.random() * 1000)
+      // For now, we don't create the user profile during registration
+      // The user needs to confirm their email first
+      // Profile creation will happen during onboarding after first login
 
-      const profileData = UserProfile.create({
-        userId: authResult.user.id,
-        firstName: firstName,
-        lastName: lastName,
-        displayName: displayName,
-        balance: 0
-      })
-
-      const createdProfile = await this.userProfileRepository.create(profileData)
-
-      // Return the complete user with real IDs
-      const completeUser = CompleteUser.create(authResult.user, createdProfile)
-
+      // Return success with the authenticated user data
       return {
         isSuccess: true,
-        data: completeUser
+        data: authResult.user
       }
 
     } catch (error) {

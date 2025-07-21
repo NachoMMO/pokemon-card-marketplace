@@ -115,7 +115,7 @@ describe('CreateUserAccountUseCase Application Layer', () => {
       expect(result.error).toContain('Email already exists')
     })
 
-    it('should create user profile after successful auth signup', async () => {
+    it('should return auth user after successful signup without creating profile', async () => {
       const request = new CreateUserAccountRequest(
         'Juan Pérez',
         'juan.perez@example.com',
@@ -135,24 +135,11 @@ describe('CreateUserAccountUseCase Application Layer', () => {
         error: null
       })
 
-      vi.mocked(mockUserProfileRepository.create).mockResolvedValue({
-        id: 'profile123',
-        userId: 'user123',
-        firstName: 'Juan',
-        lastName: 'Pérez',
-        displayName: 'juanperez123',
-        balance: 0
-      } as any)
+      const result = await useCase.execute(request)
 
-      await useCase.execute(request)
-
-      expect(mockUserProfileRepository.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          userId: 'user123',
-          firstName: 'Juan',
-          lastName: 'Pérez'
-        })
-      )
+      expect(result.isSuccess).toBe(true)
+      expect(result.data).toBeDefined()
+      expect(mockUserProfileRepository.create).not.toHaveBeenCalled()
     })
 
     it('should validate DTO before processing', async () => {

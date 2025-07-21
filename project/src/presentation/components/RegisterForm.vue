@@ -21,17 +21,17 @@
         data-testid="error-message"
         class="error-message"
       >
-        {{ error || (typeof serviceError === 'string' ? serviceError : 'An error occurred') }}
+        {{ error || serviceError || 'An error occurred' }}
       </div>
 
-      <form @submit.prevent="handleSubmit" class="register-form">
+      <form @submit.prevent="handleSubmit" class="register-form" data-testid="register-form">
         <!-- Name Field -->
         <div class="form-group">
           <label for="name" class="form-label">Full Name</label>
           <input
             id="name"
             v-model="formData.name"
-            data-testid="name-input"
+            data-testid="name-field"
             type="text"
             class="form-input"
             :class="{ 'error': validationErrors.name }"
@@ -57,7 +57,7 @@
           <input
             id="email"
             v-model="formData.email"
-            data-testid="email-input"
+            data-testid="email-field"
             type="email"
             class="form-input"
             :class="{ 'error': validationErrors.email }"
@@ -83,7 +83,7 @@
           <input
             id="password"
             v-model="formData.password"
-            data-testid="password-input"
+            data-testid="password-field"
             type="password"
             class="form-input"
             :class="{ 'error': validationErrors.password }"
@@ -109,7 +109,7 @@
           <input
             id="confirmPassword"
             v-model="formData.confirmPassword"
-            data-testid="confirm-password-input"
+            data-testid="confirm-password-field"
             type="password"
             class="form-input"
             :class="{ 'error': validationErrors.confirmPassword }"
@@ -283,9 +283,9 @@ const handleSubmit = async () => {
 
   if (result.isSuccess) {
     // The success state will trigger the success message display
-    // After a short delay, redirect to welcome page
+    // After a short delay, redirect to onboarding page
     setTimeout(() => {
-      router.push('/welcome')
+      router.push('/onboarding')
     }, 2000)
   }
 }
@@ -294,7 +294,7 @@ const handleSubmit = async () => {
 watch(success, (newSuccess) => {
   if (newSuccess) {
     setTimeout(() => {
-      router.push('/welcome')
+      router.push('/onboarding')
     }, 2000)
   }
 })

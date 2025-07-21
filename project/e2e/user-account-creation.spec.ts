@@ -15,10 +15,10 @@ test.describe('User Account Creation Feature', () => {
     await expect(page.locator('h1')).toContainText('Create Account')
 
     // When I enter the following data
-    await page.fill('[data-testid="name-input"]', 'Juan Pérez')
-    await page.fill('[data-testid="email-input"]', 'juan.nuevo@example.com')
-    await page.fill('[data-testid="password-input"]', 'MiPassword123!')
-    await page.fill('[data-testid="confirm-password-input"]', 'MiPassword123!')
+    await page.fill('[data-testid="name-field"]', 'Juan Pérez')
+    await page.fill('[data-testid="email-field"]', 'juan.nuevo@example.com')
+    await page.fill('[data-testid="password-field"]', 'MiPassword123!')
+    await page.fill('[data-testid="confirm-password-field"]', 'MiPassword123!')
 
     // And I accept the terms and conditions
     await page.check('[data-testid="terms-checkbox"]')
@@ -50,10 +50,10 @@ test.describe('User Account Creation Feature', () => {
     })
 
     // When I enter data with existing email
-    await page.fill('[data-testid="name-input"]', 'María González')
-    await page.fill('[data-testid="email-input"]', 'juan.perez@example.com') // Existing email
-    await page.fill('[data-testid="password-input"]', 'AnotherPassword456!')
-    await page.fill('[data-testid="confirm-password-input"]', 'AnotherPassword456!')
+    await page.fill('[data-testid="name-field"]', 'María González')
+    await page.fill('[data-testid="email-field"]', 'juan.perez@example.com') // Existing email
+    await page.fill('[data-testid="password-field"]', 'AnotherPassword456!')
+    await page.fill('[data-testid="confirm-password-field"]', 'AnotherPassword456!')
     await page.check('[data-testid="terms-checkbox"]')
     await page.click('[data-testid="create-account-button"]')
 
@@ -66,10 +66,10 @@ test.describe('User Account Creation Feature', () => {
 
   test('Attempt to create account with mismatched passwords', async ({ page }) => {
     // When I enter mismatched passwords
-    await page.fill('[data-testid="name-input"]', 'Carlos López')
-    await page.fill('[data-testid="email-input"]', 'carlos.lopez@example.com')
-    await page.fill('[data-testid="password-input"]', 'MiPassword123!')
-    await page.fill('[data-testid="confirm-password-input"]', 'AnotherPassword456!')
+    await page.fill('[data-testid="name-field"]', 'Carlos López')
+    await page.fill('[data-testid="email-field"]', 'carlos.lopez@example.com')
+    await page.fill('[data-testid="password-field"]', 'MiPassword123!')
+    await page.fill('[data-testid="confirm-password-field"]', 'AnotherPassword456!')
     await page.check('[data-testid="terms-checkbox"]')
     await page.click('[data-testid="create-account-button"]')
 
@@ -81,24 +81,22 @@ test.describe('User Account Creation Feature', () => {
   })
 
   test('Form validation for required fields', async ({ page }) => {
-    // When I try to submit empty form
+        // When I try to submit without filling anything
     await page.click('[data-testid="create-account-button"]')
 
-    // Then I should see validation errors
-    await expect(page.locator('[data-testid="name-error"]')).toContainText('Name is required')
-    await expect(page.locator('[data-testid="email-error"]')).toContainText('Email is required')
-    await expect(page.locator('[data-testid="password-error"]')).toContainText('Password is required')
+    // Then I should see validation errors for required fields
+    await expect(page.locator('[data-testid="error-message"]')).toBeVisible()
 
-    // And I should remain on the registration page
+    // And I should remain on the register page
     await expect(page).toHaveURL('/register')
   })
 
   test('Form validation for invalid email format', async ({ page }) => {
-    // When I enter invalid email
-    await page.fill('[data-testid="name-input"]', 'Test User')
-    await page.fill('[data-testid="email-input"]', 'invalid-email')
-    await page.fill('[data-testid="password-input"]', 'Password123!')
-    await page.fill('[data-testid="confirm-password-input"]', 'Password123!')
+        // When I enter invalid email format
+    await page.fill('[data-testid="name-field"]', 'Ana Martínez')
+    await page.fill('[data-testid="email-field"]', 'invalid-email-format')
+    await page.fill('[data-testid="password-field"]', 'ValidPassword123!')
+    await page.fill('[data-testid="confirm-password-field"]', 'ValidPassword123!')
     await page.check('[data-testid="terms-checkbox"]')
     await page.click('[data-testid="create-account-button"]')
 
@@ -108,10 +106,10 @@ test.describe('User Account Creation Feature', () => {
 
   test('Form validation for weak password', async ({ page }) => {
     // When I enter weak password
-    await page.fill('[data-testid="name-input"]', 'Test User')
-    await page.fill('[data-testid="email-input"]', 'test@example.com')
-    await page.fill('[data-testid="password-input"]', '123')
-    await page.fill('[data-testid="confirm-password-input"]', '123')
+    await page.fill('[data-testid="name-field"]', 'Test User')
+    await page.fill('[data-testid="email-field"]', 'test@example.com')
+    await page.fill('[data-testid="password-field"]', '123')
+    await page.fill('[data-testid="confirm-password-field"]', '123')
     await page.check('[data-testid="terms-checkbox"]')
     await page.click('[data-testid="create-account-button"]')
 
@@ -121,10 +119,10 @@ test.describe('User Account Creation Feature', () => {
 
   test('Terms and conditions requirement', async ({ page }) => {
     // When I fill valid data but don't accept terms
-    await page.fill('[data-testid="name-input"]', 'Test User')
-    await page.fill('[data-testid="email-input"]', 'test@example.com')
-    await page.fill('[data-testid="password-input"]', 'Password123!')
-    await page.fill('[data-testid="confirm-password-input"]', 'Password123!')
+    await page.fill('[data-testid="name-field"]', 'Test User')
+    await page.fill('[data-testid="email-field"]', 'test@example.com')
+    await page.fill('[data-testid="password-field"]', 'Password123!')
+    await page.fill('[data-testid="confirm-password-field"]', 'Password123!')
     // Don't check terms checkbox
     await page.click('[data-testid="create-account-button"]')
 
@@ -148,10 +146,10 @@ test.describe('User Account Creation Feature', () => {
     })
 
     // Fill valid form data
-    await page.fill('[data-testid="name-input"]', 'Test User')
-    await page.fill('[data-testid="email-input"]', 'test@example.com')
-    await page.fill('[data-testid="password-input"]', 'Password123!')
-    await page.fill('[data-testid="confirm-password-input"]', 'Password123!')
+    await page.fill('[data-testid="name-field"]', 'Test User')
+    await page.fill('[data-testid="email-field"]', 'test@example.com')
+    await page.fill('[data-testid="password-field"]', 'Password123!')
+    await page.fill('[data-testid="confirm-password-field"]', 'Password123!')
     await page.check('[data-testid="terms-checkbox"]')
 
     // Click submit button

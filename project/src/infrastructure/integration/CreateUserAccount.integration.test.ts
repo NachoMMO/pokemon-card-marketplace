@@ -119,7 +119,7 @@ describe('User Account Creation Integration Tests', () => {
 
       const result = await useCase.execute(request)
 
-      // Verify the complete flow
+      // Verify the complete flow - now only creates auth user
       expect(result.isSuccess).toBe(true)
       expect(result.data).toBeDefined()
 
@@ -129,24 +129,13 @@ describe('User Account Creation Integration Tests', () => {
         password: 'MiPassword123!'
       })
 
-      // Verify profile repository was called correctly
-      expect(mockSupabaseClient.from).toHaveBeenCalledWith('user_profiles')
-      expect(mockTable.insert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          user_id: 'auth-user-123',
-          first_name: 'Juan',
-          last_name: 'Pérez',
-          balance: 0
-        })
-      )
+      // Verify profile repository was NOT called (profiles created during onboarding now)
+      expect(mockSupabaseClient.from).not.toHaveBeenCalledWith('user_profiles')
 
-      // Verify the returned complete user
-      expect(result.data?.user.id).toBe('auth-user-123')
-      expect(result.data?.user.email).toBe('juan.perez@example.com')
-      expect(result.data?.profile.firstName).toBe('Juan')
-      expect(result.data?.profile.lastName).toBe('Pérez')
-      expect(result.data?.name).toBe('Juan Pérez')
-      expect(result.data?.status).toBe('pending_verification')
+      // Verify the returned auth user
+      expect(result.data?.id).toBe('auth-user-123')
+      expect(result.data?.email).toBe('juan.perez@example.com')
+      expect(result.data?.emailConfirmed).toBe(false)
     })
 
     it('should handle auth service failures gracefully', async () => {
@@ -172,7 +161,7 @@ describe('User Account Creation Integration Tests', () => {
       expect(mockSupabaseClient.from).not.toHaveBeenCalled()
     })
 
-    it('should handle database failures after successful auth signup', async () => {
+    it('should succeed since profile creation is no longer part of registration flow', async () => {
       const request = new CreateUserAccountRequest(
         'Bob Smith',
         'bob.smith@example.com',
@@ -192,28 +181,19 @@ describe('User Account Creation Integration Tests', () => {
         error: null
       })
 
-      // Mock database error during profile creation
-      vi.mocked(mockTable.single).mockResolvedValue({
-        data: null,
-        error: {
-          message: 'duplicate key value violates unique constraint',
-          code: '23505'
-        }
-      })
-
       const result = await useCase.execute(request)
 
-      expect(result.isSuccess).toBe(false)
-      expect(result.error).toContain('duplicate key value')
+      expect(result.isSuccess).toBe(true)
+      expect(result.data).toBeDefined()
 
-      // Verify auth was called but profile creation failed
+      // Verify auth was called and no profile repository calls were made
       expect(mockAuthService.signUp).toHaveBeenCalled()
-      expect(mockSupabaseClient.from).toHaveBeenCalledWith('user_profiles')
+      expect(mockSupabaseClient.from).not.toHaveBeenCalledWith('user_profiles')
     })
   })
 
   describe('Data Consistency', () => {
-    it('should maintain data consistency between auth user and profile', async () => {
+    it('should return consistent auth user data without profile creation', async () => {
       const request = new CreateUserAccountRequest(
         'Alice Johnson',
         'alice.johnson@example.com',
@@ -236,36 +216,17 @@ describe('User Account Creation Integration Tests', () => {
         error: null
       })
 
-      // Mock profile creation
-      vi.mocked(mockTable.single).mockResolvedValue({
-        data: {
-          id: 'profile-789',
-          user_id: authUserId, // Same ID as auth user
-          first_name: 'Alice',
-          last_name: 'Johnson',
-          display_name: 'alicejohnson123',
-          balance: 0,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        error: null
-      })
-
       const result = await useCase.execute(request)
 
       expect(result.isSuccess).toBe(true)
 
-      // Verify data consistency
-      expect(result.data?.user.id).toBe(authUserId)
-      expect(result.data?.user.email).toBe(authEmail)
-      expect(result.data?.profile.userId).toBe(authUserId)
+      // Verify auth user data consistency
+      expect(result.data?.id).toBe(authUserId)
+      expect(result.data?.email).toBe(authEmail)
+      expect(result.data?.emailConfirmed).toBe(false)
 
-      // Verify the profile was created with the correct auth user ID
-      expect(mockTable.insert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          user_id: authUserId
-        })
-      )
+      // Verify no profile repository calls were made
+      expect(mockSupabaseClient.from).not.toHaveBeenCalledWith('user_profiles')
     })
   })
 })

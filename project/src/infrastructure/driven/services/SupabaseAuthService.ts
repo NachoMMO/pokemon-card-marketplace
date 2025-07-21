@@ -26,6 +26,17 @@ export class SupabaseAuthService implements ISupabaseAuthService {
         };
       }
 
+      // Ensure user session is properly established for RLS policies
+      if (data.session) {
+        await this.supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token
+        });
+
+        // Wait for session to be fully established
+        await new Promise(resolve => setTimeout(resolve, 50))
+      }
+
       return {
         user: new User(
           data.user.id,

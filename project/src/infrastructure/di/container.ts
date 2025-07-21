@@ -49,6 +49,7 @@ export const DEPENDENCIES = {
   // Use Cases
   CREATE_USER_ACCOUNT_USE_CASE: 'CreateUserAccountUseCase',
   CREATE_USER_PROFILE_USE_CASE: 'CreateUserProfileUseCase',
+  COMPLETE_USER_ONBOARDING_USE_CASE: 'CompleteUserOnboardingUseCase',
   LOGIN_USER_USE_CASE: 'LoginUserUseCase',
   GET_CURRENT_USER_USE_CASE: 'GetCurrentUserUseCase',
 
