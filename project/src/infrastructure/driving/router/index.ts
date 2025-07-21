@@ -1,4 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../../../presentation/views/HomeView.vue'
+import DashboardView from '../../../presentation/views/DashboardView.vue'
+import RegisterView from '../../../presentation/views/RegisterView.vue'
+import WelcomeView from '../../../presentation/views/WelcomeView.vue'
+import LoginView from '../../../presentation/views/LoginView.vue'
+import OnboardingView from '../../../presentation/views/OnboardingView.vue'
+import { authGuard, guestGuard } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -6,32 +13,44 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('@/presentation/views/HomeView.vue')
+      component: HomeView,
+      beforeEnter: guestGuard,
+      meta: { requiresGuest: true }
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('@/presentation/views/RegisterView.vue')
+      component: RegisterView,
+      beforeEnter: guestGuard,
+      meta: { requiresGuest: true }
     },
     {
       path: '/welcome',
       name: 'welcome',
-      component: () => import('@/presentation/views/WelcomeView.vue')
+      component: WelcomeView,
+      beforeEnter: guestGuard,
+      meta: { requiresGuest: true }
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/presentation/views/LoginView.vue')
+      component: LoginView,
+      beforeEnter: guestGuard,
+      meta: { requiresGuest: true }
     },
     {
       path: '/onboarding',
       name: 'onboarding',
-      component: () => import('@/presentation/views/OnboardingView.vue')
+      component: OnboardingView,
+      beforeEnter: guestGuard,
+      meta: { requiresGuest: true }
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: () => import('@/presentation/views/DashboardView.vue')
+      component: DashboardView,
+      beforeEnter: authGuard,
+      meta: { requiresAuth: true }
     }
   ]
 })

@@ -20,6 +20,7 @@
             </span>
             Profile
           </button>
+          <LogoutButton />
         </div>
       </div>
     </header>
@@ -151,6 +152,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCurrentUser } from '@/presentation/composables/useCurrentUser'
+import LogoutButton from '@/presentation/components/LogoutButton.vue'
 
 const router = useRouter()
 const { getCurrentUser, user: currentUser, isLoading } = useCurrentUser()

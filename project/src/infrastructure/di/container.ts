@@ -51,6 +51,7 @@ export const DEPENDENCIES = {
   CREATE_USER_PROFILE_USE_CASE: 'CreateUserProfileUseCase',
   COMPLETE_USER_ONBOARDING_USE_CASE: 'CompleteUserOnboardingUseCase',
   LOGIN_USER_USE_CASE: 'LoginUserUseCase',
+  LOGOUT_USER_USE_CASE: 'LogoutUserUseCase',
   GET_CURRENT_USER_USE_CASE: 'GetCurrentUserUseCase',
 
   // Advanced Data Service Use Cases

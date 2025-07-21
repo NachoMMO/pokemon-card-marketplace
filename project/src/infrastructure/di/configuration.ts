@@ -29,6 +29,7 @@ import {
   CreateUserAccountUseCase,
   CreateUserProfileUseCase,
   LoginUserUseCase,
+  LogoutUserUseCase,
   GetCurrentUserUseCase,
   AddToCartUseCase,
   AddToCollectionUseCase,
@@ -98,6 +99,11 @@ export function configureDependencies(): void {
   container.register(
     DEPENDENCIES.LOGIN_USER_USE_CASE,
     new LoginUserUseCase(authService, userProfileRepository)
+  );
+
+  container.register(
+    DEPENDENCIES.LOGOUT_USER_USE_CASE,
+    new LogoutUserUseCase(authService)
   );
 
   container.register(
