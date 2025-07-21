@@ -5,7 +5,7 @@ import RegisterView from '../../../presentation/views/RegisterView.vue'
 import WelcomeView from '../../../presentation/views/WelcomeView.vue'
 import LoginView from '../../../presentation/views/LoginView.vue'
 import OnboardingView from '../../../presentation/views/OnboardingView.vue'
-import { authGuard, guestGuard } from './guards'
+import { authGuard, guestGuard, onboardingGuard } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,8 +42,8 @@ const router = createRouter({
       path: '/onboarding',
       name: 'onboarding',
       component: OnboardingView,
-      beforeEnter: guestGuard,
-      meta: { requiresGuest: true }
+      beforeEnter: onboardingGuard,
+      meta: { requiresAuth: true }
     },
     {
       path: '/dashboard',

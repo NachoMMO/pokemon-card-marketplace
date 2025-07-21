@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { authGuard, guestGuard } from './guards'
+import { authGuard, guestGuard, onboardingGuard } from './guards'
 import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 import type { ISupabaseAuthService } from '../../../application/ports/services'
 import { User } from '../../../domain/entities/User'
@@ -121,6 +121,49 @@ describe('Router Guards', () => {
 
       // Assert
       expect(mockNext).toHaveBeenCalledWith()
+      expect(mockNext).toHaveBeenCalledTimes(1)
+      expect(consoleSpy).toHaveBeenCalledWith('Error checking authentication:', expect.any(Error))
+
+      consoleSpy.mockRestore()
+    })
+  })
+
+  describe('onboardingGuard', () => {
+    it('debería permitir acceso cuando el usuario está autenticado', async () => {
+      // Arrange
+      const mockUser = new User('123', 'test@example.com', true, new Date(), new Date())
+      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
+
+      // Act
+      await onboardingGuard(mockTo, mockFrom, mockNext)
+
+      // Assert
+      expect(mockNext).toHaveBeenCalledWith()
+      expect(mockNext).toHaveBeenCalledTimes(1)
+    })
+
+    it('debería redirigir a login cuando el usuario no está autenticado', async () => {
+      // Arrange
+      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(null)
+
+      // Act
+      await onboardingGuard(mockTo, mockFrom, mockNext)
+
+      // Assert
+      expect(mockNext).toHaveBeenCalledWith('/login')
+      expect(mockNext).toHaveBeenCalledTimes(1)
+    })
+
+    it('debería redirigir a login cuando hay un error al verificar autenticación', async () => {
+      // Arrange
+      vi.mocked(mockAuthService.getCurrentUser).mockRejectedValue(new Error('Network error'))
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      // Act
+      await onboardingGuard(mockTo, mockFrom, mockNext)
+
+      // Assert
+      expect(mockNext).toHaveBeenCalledWith('/login')
       expect(mockNext).toHaveBeenCalledTimes(1)
       expect(consoleSpy).toHaveBeenCalledWith('Error checking authentication:', expect.any(Error))
 

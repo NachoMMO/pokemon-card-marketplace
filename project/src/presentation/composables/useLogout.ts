@@ -22,8 +22,8 @@ export function useLogout() {
         return false;
       }
 
-      // Dar un pequeño delay para asegurar que el logout se propaga
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Dar tiempo para asegurar que el logout se propaga completamente
+      await new Promise(resolve => setTimeout(resolve, 300));
 
       // Redirigir al usuario después del logout exitoso
       router.replace(redirectPath);
