@@ -56,6 +56,13 @@ export interface ISupabaseAuthService {
   updatePassword(newPassword: string): Promise<boolean>;
 
   /**
+   * Valida un token de reset de contraseña
+   * @param token - Token de reset
+   * @returns Información de validación del token
+   */
+  validateResetToken(token: string): Promise<{ isValid: boolean; email?: string }>;
+
+  /**
    * Escucha cambios en el estado de autenticación
    * @param callback - Función que se ejecuta cuando cambia el estado
    */
@@ -66,4 +73,12 @@ export interface ISupabaseAuthService {
    * @returns Token de acceso o null si no hay sesión
    */
   getAccessToken(): Promise<string | null>;
+
+  /**
+   * Establece una sesión usando tokens de recuperación
+   * @param accessToken - Token de acceso de recuperación
+   * @param refreshToken - Token de refresco de recuperación
+   * @returns true si se estableció la sesión correctamente
+   */
+  setSessionFromRecoveryToken?(accessToken: string, refreshToken: string): Promise<boolean>;
 }

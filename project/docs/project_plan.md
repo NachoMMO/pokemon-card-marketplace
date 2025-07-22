@@ -136,10 +136,16 @@ This phase involves building the application one feature at a time using hexagon
 
 **Feature Implementation Order:**
 
-1.  **User Authentication (Domain-Driven with Supabase Adapters):**
-    *   `user_account_creation.feature`: User registration use case with Supabase Auth adapter and email confirmation.
-    *   `user_login.feature`: Authentication domain logic with Supabase Auth adapter for session management.
-    *   `password_recovery.feature`: Password reset use case using Supabase Auth email service adapter.
+1.  **✅ User Authentication (Domain-Driven with Supabase Adapters):** *(Completed)*
+    *   ✅ `user_account_creation.feature`: User registration use case with Supabase Auth adapter and email confirmation.
+    *   ✅ `user_login.feature`: Authentication domain logic with Supabase Auth adapter for session management.
+    *   ✅ `password_recovery.feature`: Password reset use case using Supabase Auth email service adapter.
+        - ✅ Domain layer: ResetPasswordUseCase, RequestPasswordResetUseCase, ValidateResetTokenUseCase
+        - ✅ Application layer: Password recovery port interfaces and DTOs
+        - ✅ Infrastructure layer: Supabase Auth service adapters with recovery token handling
+        - ✅ Presentation layer: ResetPasswordView component with complete UI flow
+        - ✅ Router guards: resetPasswordGuard for recovery token validation
+        - ✅ Comprehensive test coverage: 14 new tests covering all layers and edge cases
 
 2.  **Card & Collection Management (Repository Pattern):**
     *   `view_card_catalog.feature`: Card query use cases with Supabase repository implementations and pagination.

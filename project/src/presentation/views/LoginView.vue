@@ -6,11 +6,6 @@
 
       <LoginForm />
 
-      <!-- Links -->
-      <div class="login-links">
-        <router-link to="/password-reset" class="link">Forgot your password?</router-link>
-      </div>
-
       <div class="signup-link">
         Don't have an account?
         <router-link to="/register" class="link">Sign up</router-link>
@@ -55,11 +50,6 @@ import LoginForm from '../components/LoginForm.vue'
   color: #6b7280;
   text-align: center;
   margin-bottom: 2rem;
-}
-
-.login-links {
-  text-align: center;
-  margin: 1.5rem 0;
 }
 
 .signup-link {

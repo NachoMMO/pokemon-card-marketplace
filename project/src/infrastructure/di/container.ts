@@ -54,6 +54,11 @@ export const DEPENDENCIES = {
   LOGOUT_USER_USE_CASE: 'LogoutUserUseCase',
   GET_CURRENT_USER_USE_CASE: 'GetCurrentUserUseCase',
 
+  // Password Recovery Use Cases
+  REQUEST_PASSWORD_RESET_USE_CASE: 'RequestPasswordResetUseCase',
+  RESET_PASSWORD_USE_CASE: 'ResetPasswordUseCase',
+  VALIDATE_RESET_TOKEN_USE_CASE: 'ValidateResetTokenUseCase',
+
   // Advanced Data Service Use Cases
   SEARCH_CARDS_ADVANCED_USE_CASE: 'SearchCardsAdvancedUseCase',
   GET_DASHBOARD_STATS_USE_CASE: 'GetDashboardStatsUseCase',

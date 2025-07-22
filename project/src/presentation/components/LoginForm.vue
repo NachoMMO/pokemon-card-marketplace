@@ -70,6 +70,13 @@
       <span v-if="isLoading" data-testid="loading-spinner" class="loading-spinner"></span>
       {{ isLoading ? 'Signing In...' : 'Sign In' }}
     </button>
+
+    <!-- Forgot Password Link -->
+    <div class="form-footer">
+      <router-link to="/forgot-password" class="forgot-password-link" data-testid="forgot-password-link">
+        Forgot your password?
+      </router-link>
+    </div>
   </form>
 </template>
 
@@ -267,5 +274,23 @@ const handlePasswordInput = () => {
   to {
     transform: rotate(360deg);
   }
+}
+
+.form-footer {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.forgot-password-link {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+  color: #5a67d8;
+  text-decoration: underline;
 }
 </style>

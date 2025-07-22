@@ -127,10 +127,19 @@ export class SupabaseAuthService implements ISupabaseAuthService {
 
   async resetPassword(email: string): Promise<boolean> {
     try {
+      // Usar la URL de redirección completa desde el principio
+      const redirectUrl = `${window.location.origin}/reset-password`;
+
       const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
+        redirectTo: redirectUrl
       });
-      return !error;
+
+      if (error) {
+        console.error('Error específico de Supabase:', error);
+        throw new Error(error.message);
+      }
+
+      return true;
     } catch (error) {
       console.error('Error al enviar email de recuperación:', error);
       return false;
@@ -147,9 +156,7 @@ export class SupabaseAuthService implements ISupabaseAuthService {
       console.error('Error al actualizar contraseña:', error);
       return false;
     }
-  }
-
-  onAuthStateChange(callback: (user: User | null) => void): void {
+  }  onAuthStateChange(callback: (user: User | null) => void): void {
     this.supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         const user = new User(
@@ -178,6 +185,48 @@ export class SupabaseAuthService implements ISupabaseAuthService {
     } catch (error) {
       console.error('Error al obtener token de acceso:', error);
       return null;
+    }
+  }
+
+  async validateResetToken(token: string): Promise<{ isValid: boolean; email?: string }> {
+    try {
+      // En Supabase, podemos verificar el token intentando usarlo para recuperar información de sesión
+      // Si el token es válido, nos dará información del usuario
+      const { data, error } = await this.supabase.auth.verifyOtp({
+        token_hash: token,
+        type: 'recovery'
+      });
+
+      if (error || !data.user) {
+        return { isValid: false };
+      }
+
+      return {
+        isValid: true,
+        email: data.user.email
+      };
+    } catch (error) {
+      console.error('Error al validar token de recuperación:', error);
+      return { isValid: false };
+    }
+  }
+
+  async setSessionFromRecoveryToken(accessToken: string, refreshToken: string): Promise<boolean> {
+    try {
+      const { data, error } = await this.supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+
+      if (error) {
+        console.error('Error setting recovery session:', error);
+        return false;
+      }
+
+      return !!data.session;
+    } catch (error) {
+      console.error('Error al establecer sesión de recuperación:', error);
+      return false;
     }
   }
 

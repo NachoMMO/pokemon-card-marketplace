@@ -25,6 +25,37 @@ export const authGuard = async (
   }
 }
 
+export const resetPasswordGuard = async (
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) => {
+  try {
+    // Check if there's a recovery token in the URL hash
+    const hashParams = new URLSearchParams(window.location.hash.substring(1))
+    const tokenType = hashParams.get('type')
+
+    // If this is a recovery flow, allow access regardless of session status
+    if (tokenType === 'recovery') {
+      next()
+      return
+    }
+
+    // If no recovery token, check if there's a token in query params (fallback)
+    const queryToken = to.query.token
+    if (queryToken) {
+      next()
+      return
+    }
+
+    // No recovery token found, redirect to forgot password
+    next('/forgot-password')
+  } catch (error) {
+    console.error('Error checking reset password access:', error)
+    next('/forgot-password')
+  }
+}
+
 export const guestGuard = async (
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
@@ -35,12 +66,12 @@ export const guestGuard = async (
     const user = await authService.getCurrentUser()
 
     if (user) {
-      // Usuario ya autenticado, redirigir al dashboard
+      // Usuario autenticado, redirigir al dashboard
       next('/dashboard')
       return
     }
 
-    // Usuario no autenticado, permitir acceso a páginas de guest
+    // Usuario no autenticado, permitir acceso
     next()
   } catch (error) {
     console.error('Error checking authentication:', error)

@@ -7,3 +7,4 @@ export * from './CartDTO';
 export * from './PurchaseDTO';
 export * from './SaleDTO';
 export * from './MessageDTO';
+export * from './PasswordRecoveryDTO';

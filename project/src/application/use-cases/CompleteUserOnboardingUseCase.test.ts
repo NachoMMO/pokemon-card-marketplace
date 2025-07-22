@@ -17,8 +17,10 @@ describe('CompleteUserOnboardingUseCase', () => {
       signIn: vi.fn(),
       signOut: vi.fn(),
       resetPassword: vi.fn(),
-      changePassword: vi.fn(),
-      getSession: vi.fn()
+      updatePassword: vi.fn(),
+      validateResetToken: vi.fn(),
+      onAuthStateChange: vi.fn(),
+      getAccessToken: vi.fn()
     } as any
 
     mockUserProfileRepository = {
@@ -66,9 +68,9 @@ describe('CompleteUserOnboardingUseCase', () => {
         dateOfBirth: '1990-01-01'
       }
 
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
-      vi.mocked(mockUserProfileRepository.findByUserId).mockResolvedValue(null)
-      vi.mocked(mockUserProfileRepository.create).mockResolvedValue(mockProfile)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(mockUser)
+      ;(mockUserProfileRepository.findByUserId as any).mockResolvedValue(null)
+      ;(mockUserProfileRepository.create as any).mockResolvedValue(mockProfile)
 
       const result = await useCase.execute(onboardingData)
 
@@ -99,7 +101,7 @@ describe('CompleteUserOnboardingUseCase', () => {
         dateOfBirth: '1990-01-01'
       }
 
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(null)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(null)
 
       const result = await useCase.execute(onboardingData)
 
@@ -118,9 +120,9 @@ describe('CompleteUserOnboardingUseCase', () => {
         dateOfBirth: '1990-01-01'
       }
 
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
-      vi.mocked(mockUserProfileRepository.findByUserId).mockResolvedValue(null)
-      vi.mocked(mockUserProfileRepository.create).mockRejectedValue(
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(mockUser)
+      ;(mockUserProfileRepository.findByUserId as any).mockResolvedValue(null)
+      ;(mockUserProfileRepository.create as any).mockRejectedValue(
         new Error('Profile creation failed')
       )
 
@@ -140,7 +142,7 @@ describe('CompleteUserOnboardingUseCase', () => {
         dateOfBirth: '1990-01-01'
       }
 
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(mockUser)
 
       const result = await useCase.execute(invalidData)
 
@@ -158,7 +160,7 @@ describe('CompleteUserOnboardingUseCase', () => {
         dateOfBirth: '1990-01-01'
       }
 
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(mockUser)
 
       const result = await useCase.execute(onboardingData)
 
@@ -176,9 +178,9 @@ describe('CompleteUserOnboardingUseCase', () => {
         dateOfBirth: undefined
       }
 
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
-      vi.mocked(mockUserProfileRepository.findByUserId).mockResolvedValue(null)
-      vi.mocked(mockUserProfileRepository.create).mockResolvedValue(mockProfile)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(mockUser)
+      ;(mockUserProfileRepository.findByUserId as any).mockResolvedValue(null)
+      ;(mockUserProfileRepository.create as any).mockResolvedValue(mockProfile)
 
       const result = await useCase.execute(minimalData)
 

@@ -5,7 +5,9 @@ import RegisterView from '../../../presentation/views/RegisterView.vue'
 import WelcomeView from '../../../presentation/views/WelcomeView.vue'
 import LoginView from '../../../presentation/views/LoginView.vue'
 import OnboardingView from '../../../presentation/views/OnboardingView.vue'
-import { authGuard, guestGuard, onboardingGuard } from './guards'
+import ForgotPasswordView from '../../../presentation/views/ForgotPasswordView.vue'
+import ResetPasswordView from '../../../presentation/views/ResetPasswordView.vue'
+import { authGuard, guestGuard, onboardingGuard, resetPasswordGuard } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +41,20 @@ const router = createRouter({
       meta: { requiresGuest: true }
     },
     {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPasswordView,
+      beforeEnter: guestGuard,
+      meta: { requiresGuest: true }
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPasswordView,
+      beforeEnter: resetPasswordGuard,
+      meta: { allowRecovery: true }
+    },
+    {
       path: '/onboarding',
       name: 'onboarding',
       component: OnboardingView,
@@ -53,6 +69,23 @@ const router = createRouter({
       meta: { requiresAuth: true }
     }
   ]
+})
+
+// Global navigation guard to handle Supabase recovery tokens
+router.beforeEach((to, from, next) => {
+  // Check if there's a recovery token in the URL hash
+  const hashParams = new URLSearchParams(window.location.hash.substring(1))
+  const tokenType = hashParams.get('type')
+  const accessToken = hashParams.get('access_token')
+
+  // If we detect a recovery token and we're not already on the reset password page
+  if (tokenType === 'recovery' && accessToken && to.path !== '/reset-password') {
+    // Redirect to reset password page, preserving the hash
+    next('/reset-password')
+    return
+  }
+
+  next()
 })
 
 export default router

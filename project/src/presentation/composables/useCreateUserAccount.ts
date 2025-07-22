@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
-import { CreateUserAccountUseCase } from '@/application/use-cases/CreateUserAccountUseCase'
-import { CreateUserAccountRequest } from '@/application/dtos/CreateUserAccountRequest'
-import { container, DEPENDENCIES } from '@/infrastructure/di/container'
+import { CreateUserAccountUseCase } from '../../application/use-cases/CreateUserAccountUseCase'
+import { CreateUserAccountRequest } from '../../application/dtos/CreateUserAccountRequest'
+import { container, DEPENDENCIES } from '../../infrastructure/di/container'
 
 export interface CreateAccountData {
   name: string

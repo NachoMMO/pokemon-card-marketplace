@@ -5,6 +5,7 @@ export * from './card/index';
 export * from './dashboard';
 export * from './user';
 export * from './transaction';
+export * from './password-recovery';
 
 // Export the main use case for user account creation
 export { CreateUserAccountUseCase } from './CreateUserAccountUseCase';

@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { authGuard, guestGuard, onboardingGuard } from './guards'
 import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 import type { ISupabaseAuthService } from '../../../application/ports/services'
 import { User } from '../../../domain/entities/User'
 
-// Mock del container y dependencias
+// Mock del módulo container completo
 vi.mock('../../di/container', () => {
   const mockContainer = {
     get: vi.fn()
@@ -12,10 +11,15 @@ vi.mock('../../di/container', () => {
   const DEPENDENCIES = {
     SUPABASE_AUTH_SERVICE: 'SUPABASE_AUTH_SERVICE'
   }
-  return { container: mockContainer, DEPENDENCIES }
+  return {
+    container: mockContainer,
+    DEPENDENCIES
+  }
 })
 
-import { container } from '../../di/container'
+// Ahora importamos después del mock
+const { container } = await import('../../di/container')
+const { authGuard, guestGuard, onboardingGuard } = await import('./guards')
 
 describe('Router Guards', () => {
   let mockAuthService: ISupabaseAuthService
@@ -31,6 +35,7 @@ describe('Router Guards', () => {
       signOut: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
+      validateResetToken: vi.fn(),
       onAuthStateChange: vi.fn(),
       getAccessToken: vi.fn()
     }
@@ -39,14 +44,16 @@ describe('Router Guards', () => {
     mockFrom = {} as RouteLocationNormalized
     mockNext = vi.fn()
 
-    vi.mocked(container.get).mockReturnValue(mockAuthService)
+    // Reset all mocks
+    vi.clearAllMocks()
+    ;(container.get as any).mockReturnValue(mockAuthService)
   })
 
   describe('authGuard', () => {
     it('debería permitir acceso cuando el usuario está autenticado', async () => {
       // Arrange
       const mockUser = new User('123', 'test@example.com', true, new Date(), new Date())
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(mockUser)
 
       // Act
       await authGuard(mockTo, mockFrom, mockNext)
@@ -58,7 +65,7 @@ describe('Router Guards', () => {
 
     it('debería redirigir a login cuando el usuario no está autenticado', async () => {
       // Arrange
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(null)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(null)
 
       // Act
       await authGuard(mockTo, mockFrom, mockNext)
@@ -70,7 +77,7 @@ describe('Router Guards', () => {
 
     it('debería redirigir a login cuando hay un error al verificar autenticación', async () => {
       // Arrange
-      vi.mocked(mockAuthService.getCurrentUser).mockRejectedValue(new Error('Network error'))
+      ;(mockAuthService.getCurrentUser as any).mockRejectedValue(new Error('Network error'))
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       // Act
@@ -88,7 +95,7 @@ describe('Router Guards', () => {
   describe('guestGuard', () => {
     it('debería permitir acceso cuando el usuario no está autenticado', async () => {
       // Arrange
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(null)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(null)
 
       // Act
       await guestGuard(mockTo, mockFrom, mockNext)
@@ -101,7 +108,7 @@ describe('Router Guards', () => {
     it('debería redirigir al dashboard cuando el usuario está autenticado', async () => {
       // Arrange
       const mockUser = new User('123', 'test@example.com', true, new Date(), new Date())
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(mockUser)
 
       // Act
       await guestGuard(mockTo, mockFrom, mockNext)
@@ -113,7 +120,7 @@ describe('Router Guards', () => {
 
     it('debería permitir acceso cuando hay un error al verificar autenticación', async () => {
       // Arrange
-      vi.mocked(mockAuthService.getCurrentUser).mockRejectedValue(new Error('Network error'))
+      ;(mockAuthService.getCurrentUser as any).mockRejectedValue(new Error('Network error'))
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       // Act
@@ -132,7 +139,7 @@ describe('Router Guards', () => {
     it('debería permitir acceso cuando el usuario está autenticado pero no ha confirmado email', async () => {
       // Arrange
       const mockUser = new User('123', 'test@example.com', false, new Date(), new Date()) // emailConfirmed: false
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(mockUser)
 
       // Act
       await onboardingGuard(mockTo, mockFrom, mockNext)
@@ -145,7 +152,7 @@ describe('Router Guards', () => {
     it('debería redirigir al dashboard cuando el usuario está autenticado y ha confirmado email', async () => {
       // Arrange
       const mockUser = new User('123', 'test@example.com', true, new Date(), new Date()) // emailConfirmed: true
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(mockUser)
 
       // Act
       await onboardingGuard(mockTo, mockFrom, mockNext)
@@ -157,7 +164,7 @@ describe('Router Guards', () => {
 
     it('debería redirigir a login cuando el usuario no está autenticado', async () => {
       // Arrange
-      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(null)
+      ;(mockAuthService.getCurrentUser as any).mockResolvedValue(null)
 
       // Act
       await onboardingGuard(mockTo, mockFrom, mockNext)
@@ -169,7 +176,7 @@ describe('Router Guards', () => {
 
     it('debería redirigir a login cuando hay un error al verificar autenticación', async () => {
       // Arrange
-      vi.mocked(mockAuthService.getCurrentUser).mockRejectedValue(new Error('Network error'))
+      ;(mockAuthService.getCurrentUser as any).mockRejectedValue(new Error('Network error'))
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       // Act

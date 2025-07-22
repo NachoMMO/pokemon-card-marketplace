@@ -19,6 +19,7 @@ describe('CreateUserAccountUseCase Application Layer', () => {
       signOut: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
+      validateResetToken: vi.fn(),
       getCurrentUser: vi.fn(),
       onAuthStateChange: vi.fn(),
       getAccessToken: vi.fn()
@@ -57,7 +58,7 @@ describe('CreateUserAccountUseCase Application Layer', () => {
       )
 
       // Mock successful auth signup
-      vi.mocked(mockAuthService.signUp).mockResolvedValue({
+      ;(mockAuthService.signUp as any).mockResolvedValue({
         user: {
           id: 'user123',
           email: 'juan.perez@example.com',
@@ -69,7 +70,7 @@ describe('CreateUserAccountUseCase Application Layer', () => {
       })
 
       // Mock successful repository operations
-      vi.mocked(mockUserProfileRepository.create).mockResolvedValue({
+      ;(mockUserProfileRepository.create as any).mockResolvedValue({
         id: 'profile123',
         userId: 'user123',
         firstName: 'Juan',
@@ -104,7 +105,7 @@ describe('CreateUserAccountUseCase Application Layer', () => {
       )
 
       // Mock auth service error
-      vi.mocked(mockAuthService.signUp).mockResolvedValue({
+      ;(mockAuthService.signUp as any).mockResolvedValue({
         user: null,
         error: 'Email already exists'
       })
@@ -124,7 +125,7 @@ describe('CreateUserAccountUseCase Application Layer', () => {
       )
 
       // Mock successful auth signup
-      vi.mocked(mockAuthService.signUp).mockResolvedValue({
+      ;(mockAuthService.signUp as any).mockResolvedValue({
         user: {
           id: 'user123',
           email: 'juan.perez@example.com',

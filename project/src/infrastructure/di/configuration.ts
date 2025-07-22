@@ -35,8 +35,11 @@ import {
   AddToCollectionUseCase,
   SearchCardsAdvancedUseCase,
   GetDashboardStatsUseCase,
-  ProcessCardTransactionUseCase
+  ProcessCardTransactionUseCase,
+  RequestPasswordResetUseCase,
+  ValidateResetTokenUseCase
 } from '../../application/use-cases';
+import { ResetPasswordUseCase } from '../../domain/use-cases/ResetPasswordUseCase';
 import { CompleteUserOnboardingUseCase } from '../../application/use-cases/CompleteUserOnboardingUseCase';
 import type { ISupabaseAuthService, IDataService } from '../../application/ports/services';
 import type {
@@ -140,6 +143,22 @@ export function configureDependencies(): void {
   container.register(
     DEPENDENCIES.PROCESS_CARD_TRANSACTION_USE_CASE,
     new ProcessCardTransactionUseCase(dataService)
+  );
+
+  // Registrar use cases de password recovery
+  container.register(
+    DEPENDENCIES.REQUEST_PASSWORD_RESET_USE_CASE,
+    new RequestPasswordResetUseCase(authService)
+  );
+
+  container.register(
+    DEPENDENCIES.RESET_PASSWORD_USE_CASE,
+    new ResetPasswordUseCase(authService)
+  );
+
+  container.register(
+    DEPENDENCIES.VALIDATE_RESET_TOKEN_USE_CASE,
+    new ValidateResetTokenUseCase(authService)
   );
 
   console.log('✅ Dependency injection configured');
