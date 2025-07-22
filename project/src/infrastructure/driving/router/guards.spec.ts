@@ -129,9 +129,9 @@ describe('Router Guards', () => {
   })
 
   describe('onboardingGuard', () => {
-    it('debería permitir acceso cuando el usuario está autenticado', async () => {
+    it('debería permitir acceso cuando el usuario está autenticado pero no ha confirmado email', async () => {
       // Arrange
-      const mockUser = new User('123', 'test@example.com', true, new Date(), new Date())
+      const mockUser = new User('123', 'test@example.com', false, new Date(), new Date()) // emailConfirmed: false
       vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
 
       // Act
@@ -139,6 +139,19 @@ describe('Router Guards', () => {
 
       // Assert
       expect(mockNext).toHaveBeenCalledWith()
+      expect(mockNext).toHaveBeenCalledTimes(1)
+    })
+
+    it('debería redirigir al dashboard cuando el usuario está autenticado y ha confirmado email', async () => {
+      // Arrange
+      const mockUser = new User('123', 'test@example.com', true, new Date(), new Date()) // emailConfirmed: true
+      vi.mocked(mockAuthService.getCurrentUser).mockResolvedValue(mockUser)
+
+      // Act
+      await onboardingGuard(mockTo, mockFrom, mockNext)
+
+      // Assert
+      expect(mockNext).toHaveBeenCalledWith('/dashboard')
       expect(mockNext).toHaveBeenCalledTimes(1)
     })
 
