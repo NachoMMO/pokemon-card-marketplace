@@ -1,3 +1,18 @@
+#
+# 🖥️ Modern Responsive Dashboard
+#
+# Todas las secciones principales (estadísticas, acciones rápidas, actividad reciente) usan un sistema de tarjetas en grid responsivo.
+# - Por defecto, cada sección muestra **3 tarjetas por fila** en escritorio, 2 en pantallas medianas (<900px) y 1 en móviles (<600px).
+# - El diseño es consistente, moderno y fácil de leer en cualquier dispositivo.
+#
+# ## 📐 UI/UX & CSS
+# - Todos los estilos principales de layout, formularios y tarjetas están centralizados en un único archivo global (`theme.css` o en el bloque de estilos globales de cada vista principal).
+# - El sistema de grid responsivo se basa en CSS Grid y media queries, permitiendo una experiencia fluida y adaptable.
+#
+# ## Últimas mejoras visuales
+# - Se implementó un sistema de tarjetas responsivas en el dashboard y vistas principales.
+# - El layout ahora es consistente y moderno, con máximo 3 tarjetas por fila en escritorio.
+# - El código CSS es limpio, reutilizable y fácil de mantener.
 # Pokemon Card Marketplace
 
 A modern web application for buying and selling Pokemon TCG cards, built with Vue 3 and Supabase following Domain-Driven Design principles.

@@ -1,220 +1,225 @@
 <template>
-  <div class="dashboard-container">
+  <div class="cyberpunk-home">
     <!-- Header -->
-    <header class="dashboard-header">
-      <div class="header-content">
-        <div class="welcome-section">
-          <h1 class="dashboard-title">Welcome to Pokémon Card Marketplace</h1>
-          <p v-if="user" class="welcome-message">
-            Hello, {{ user.firstName || user.displayName }}! Ready to trade some cards?
-          </p>
-        </div>
-        <div class="header-actions">
-          <button class="header-button" @click="refreshData">
-            <span class="refresh-icon">↻</span>
-            Refresh
-          </button>
-          <button class="header-button profile-button" @click="openProfile">
-            <span class="profile-avatar">
-              {{ user?.firstName?.charAt(0) || user?.displayName?.charAt(0) || '?' }}
-            </span>
-            Profile
-          </button>
+    <header class="cyberpunk-header">
+      <h1 class="logo">Pokemon TCG</h1>
+      <nav>
+        <router-link to="/" class="cyberpunk-link">Home</router-link>
+        <router-link to="/catalog" class="cyberpunk-link">Catalog</router-link>
+        <router-link to="/login" class="cyberpunk-link">Login</router-link>
+        <router-link to="/register" class="cyberpunk-link">Register</router-link>
+        <span v-if="user" style="margin-left: 1.5rem;">
           <LogoutButton />
-        </div>
-      </div>
+        </span>
+      </nav>
     </header>
 
-    <!-- Main Content -->
-    <main class="dashboard-main">
-      <div class="dashboard-content">
-        <!-- Quick Stats -->
-        <section class="stats-section">
-          <h2 class="section-title">Your Trading Dashboard</h2>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon collection-icon">🃏</div>
-              <div class="stat-content">
-                <div class="stat-number">{{ userStats.collectionCount }}</div>
-                <div class="stat-label">Cards in Collection</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon cart-icon">🛒</div>
-              <div class="stat-content">
-                <div class="stat-number">{{ userStats.cartCount }}</div>
-                <div class="stat-label">Items in Cart</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon balance-icon">💰</div>
-              <div class="stat-content">
-                <div class="stat-number">${{ user?.balance.toFixed(2) || '0.00' }}</div>
-                <div class="stat-label">Account Balance</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon trades-icon">📊</div>
-              <div class="stat-content">
-                <div class="stat-number">{{ user?.totalTrades || 0 }}</div>
-                <div class="stat-label">Total Trades</div>
-              </div>
-            </div>
+    <!-- Hero/Stats Section -->
+    <section class="cyberpunk-hero" style="width:100%;max-width:1000px;">
+      <h2 class="hero-title" style="font-size:2.2rem;">Your Trading Dashboard</h2>
+      <div class="stats-cards-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🃏</div>
+          <div class="stat-info">
+            <div class="stat-value">{{ userStats.collectionCount }}</div>
+            <div class="stat-label">Cards in Collection</div>
           </div>
-        </section>
-
-        <!-- Quick Actions -->
-        <section class="actions-section">
-          <h2 class="section-title">Quick Actions</h2>
-          <div class="actions-grid">
-            <router-link to="/cards" class="action-card">
-              <div class="action-icon">🔍</div>
-              <div class="action-content">
-                <h3>Browse Cards</h3>
-                <p>Discover and purchase cards from other traders</p>
-              </div>
-            </router-link>
-            <router-link to="/collection" class="action-card">
-              <div class="action-icon">📚</div>
-              <div class="action-content">
-                <h3>My Collection</h3>
-                <p>View and manage your card collection</p>
-              </div>
-            </router-link>
-            <router-link to="/sell" class="action-card">
-              <div class="action-icon">💰</div>
-              <div class="action-content">
-                <h3>Sell Cards</h3>
-                <p>List your cards for sale to other collectors</p>
-              </div>
-            </router-link>
-            <router-link to="/cart" class="action-card">
-              <div class="action-icon">🛒</div>
-              <div class="action-content">
-                <h3>Shopping Cart</h3>
-                <p>Review and purchase items in your cart</p>
-              </div>
-            </router-link>
-            <router-link to="/messages" class="action-card">
-              <div class="action-icon">💬</div>
-              <div class="action-content">
-                <h3>Messages</h3>
-                <p>Chat with other traders and sellers</p>
-              </div>
-            </router-link>
-            <router-link to="/balance" class="action-card">
-              <div class="action-icon">💳</div>
-              <div class="action-content">
-                <h3>Manage Balance</h3>
-                <p>Add funds or view transaction history</p>
-              </div>
-            </router-link>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-info">
+            <div class="stat-value">{{ userStats.cartCount }}</div>
+            <div class="stat-label">Items in Cart</div>
           </div>
-        </section>
-
-        <!-- Recent Activity -->
-        <section class="activity-section">
-          <h2 class="section-title">Recent Activity</h2>
-          <div class="activity-list">
-            <div v-if="isLoadingActivity" class="activity-loading">
-              <div class="loading-spinner"></div>
-              Loading recent activity...
-            </div>
-            <div v-else-if="recentActivity.length === 0" class="empty-activity">
-              <div class="empty-icon">📭</div>
-              <h3>No recent activity</h3>
-              <p>Start trading to see your activity here!</p>
-            </div>
-            <div v-else class="activity-items">
-              <div
-                v-for="activity in recentActivity"
-                :key="activity.id"
-                class="activity-item"
-              >
-                <div class="activity-icon" :class="activity.type">
-                  {{ getActivityIcon(activity.type) }}
-                </div>
-                <div class="activity-content">
-                  <div class="activity-title">{{ activity.title }}</div>
-                  <div class="activity-description">{{ activity.description }}</div>
-                  <div class="activity-time">{{ formatTime(activity.timestamp) }}</div>
-                </div>
-              </div>
-            </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <div class="stat-value" v-if="user">${{ user.balance?.toFixed(2) || '0.00' }}</div>
+            <div class="stat-value" v-else>$0.00</div>
+            <div class="stat-label">Account Balance</div>
           </div>
-        </section>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-info">
+            <div class="stat-value" v-if="user">{{ user.totalTrades || 0 }}</div>
+            <div class="stat-value" v-else>0</div>
+            <div class="stat-label">Total Trades</div>
+          </div>
+        </div>
       </div>
-    </main>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="cyberpunk-features">
+      <h3 class="section-title">Quick Actions</h3>
+      <div class="actions-cards-grid">
+        <router-link to="/cards" class="action-card">
+          <div class="action-icon">🔍</div>
+          <div class="action-info">
+            <div class="action-title">Browse Cards</div>
+            <div class="action-desc">Discover and purchase cards from other traders</div>
+          </div>
+        </router-link>
+        <router-link to="/collection" class="action-card">
+          <div class="action-icon">📚</div>
+          <div class="action-info">
+            <div class="action-title">My Collection</div>
+            <div class="action-desc">View and manage your card collection</div>
+          </div>
+        </router-link>
+        <router-link to="/sell" class="action-card">
+          <div class="action-icon">💰</div>
+          <div class="action-info">
+            <div class="action-title">Sell Cards</div>
+            <div class="action-desc">List your cards for sale to other collectors</div>
+          </div>
+        </router-link>
+        <router-link to="/cart" class="action-card">
+          <div class="action-icon">🛒</div>
+          <div class="action-info">
+            <div class="action-title">Shopping Cart</div>
+            <div class="action-desc">Review and purchase items in your cart</div>
+          </div>
+        </router-link>
+        <router-link to="/messages" class="action-card">
+          <div class="action-icon">💬</div>
+          <div class="action-info">
+            <div class="action-title">Messages</div>
+            <div class="action-desc">Chat with other traders and sellers</div>
+          </div>
+        </router-link>
+        <router-link to="/balance" class="action-card">
+          <div class="action-icon">💳</div>
+          <div class="action-info">
+            <div class="action-title">Manage Balance</div>
+            <div class="action-desc">Add funds or view transaction history</div>
+          </div>
+        </router-link>
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="cyberpunk-testimonials">
+      <h3 class="section-title">Recent Activity</h3>
+      <div class="activity-cards-grid">
+        <div v-if="isLoadingActivity" class="activity-card activity-loading">
+          <div class="activity-icon">⏳</div>
+          <div class="activity-info">
+            <div class="activity-title">Loading recent activity...</div>
+          </div>
+        </div>
+        <div v-else-if="recentActivity.length === 0" class="activity-card activity-empty">
+          <div class="activity-icon">📭</div>
+          <div class="activity-info">
+            <div class="activity-title">No recent activity</div>
+            <div class="activity-desc">Start trading to see your activity here!</div>
+          </div>
+        </div>
+        <div v-else class="activity-items" style="display:flex;gap:1.2rem;">
+          <div
+            v-for="activity in recentActivity"
+            :key="activity.id"
+            class="activity-card"
+          >
+            <div class="activity-icon">{{ getActivityIcon(activity.type) }}</div>
+            <div class="activity-info">
+              <div class="activity-title">{{ activity.title }}</div>
+              <div class="activity-desc">{{ activity.description }}</div>
+              <div class="activity-time">{{ formatTime(activity.timestamp) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="cyberpunk-footer">
+      <span>© 2025 Pokemon TCG</span>
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useCurrentUser } from '@/presentation/composables/useCurrentUser'
 import LogoutButton from '@/presentation/components/LogoutButton.vue'
 
-const router = useRouter()
-const { getCurrentUser, user: currentUser, isLoading } = useCurrentUser()
+// Usuario actual reactivo
+const { getCurrentUser, user: currentUser } = useCurrentUser()
+const user = computed(() => {
+  if (!currentUser.value) return null
+  const profile = currentUser.value.profile
+  return {
+    firstName: profile?.firstName,
+    displayName: profile?.displayName,
+    balance: profile?.balance || 0,
+    totalTrades: 0 // Puedes actualizar esto si tienes el dato real
+  }
+})
 
-// Local state
-const isLoadingActivity = ref(false)
+// Stats reactivas
 const userStats = ref({
   collectionCount: 0,
   cartCount: 0
 })
 
+// Actividad reciente reactiva
+const isLoadingActivity = ref(false)
 const recentActivity = ref([
   {
     id: '1',
     type: 'purchase',
     title: 'Card Purchase',
     description: 'You purchased Charizard EX for $45.00',
-    timestamp: new Date(Date.now() - 3600000) // 1 hour ago
+    timestamp: new Date(Date.now() - 3600000)
   },
   {
     id: '2',
     type: 'sale',
     title: 'Card Listed',
     description: 'Your Pikachu card was listed for sale',
-    timestamp: new Date(Date.now() - 7200000) // 2 hours ago
+    timestamp: new Date(Date.now() - 7200000)
   },
   {
     id: '3',
     type: 'message',
     title: 'New Message',
     description: 'TrainerMaster99 sent you a message about a trade',
-    timestamp: new Date(Date.now() - 86400000) // 1 day ago
+    timestamp: new Date(Date.now() - 86400000)
   }
 ])
 
-// Computed properties
-const user = computed(() => {
-  if (!currentUser.value) return null
-  return {
-    firstName: currentUser.value.profile?.firstName,
-    displayName: currentUser.value.profile?.displayName,
-    balance: currentUser.value.profile?.balance || 0,
-    totalTrades: currentUser.value.profile ?
-      (currentUser.value.profile as any).totalTrades || 0 : 0
+// Métodos auxiliares
+function getActivityIcon(type: string) {
+  switch (type) {
+    case 'purchase': return '🛒'
+    case 'sale': return '💰'
+    case 'message': return '💬'
+
+    case 'trade': return '🔄'
+    default: return '📝'
   }
-})
-
-// Methods
-const refreshData = async () => {
-  await loadDashboardData()
 }
 
-const openProfile = () => {
-  router.push('/profile')
+function formatTime(timestamp: Date) {
+  const now = new Date()
+  const diff = now.getTime() - timestamp.getTime()
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`
+  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`
+  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+  return 'Just now'
 }
 
+// Cargar datos al montar
 const loadDashboardData = async () => {
   try {
     await getCurrentUser()
-    // Here you would normally load additional dashboard data
-    // like cart count, collection count, etc.
-    // For now, we'll use mock data
+    // Aquí puedes cargar datos reales si tienes API
     userStats.value = {
       collectionCount: 42,
       cartCount: 3
@@ -224,375 +229,210 @@ const loadDashboardData = async () => {
   }
 }
 
-const getActivityIcon = (type: string) => {
-  switch (type) {
-    case 'purchase': return '🛒'
-    case 'sale': return '💰'
-    case 'message': return '💬'
-    case 'trade': return '🔄'
-    default: return '📝'
-  }
-}
-
-const formatTime = (timestamp: Date) => {
-  const now = new Date()
-  const diff = now.getTime() - timestamp.getTime()
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
-
-  if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`
-  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`
-  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
-  return 'Just now'
-}
-
-// Lifecycle
 onMounted(() => {
   loadDashboardData()
 })
 </script>
 
 <style scoped>
-.dashboard-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
+@import '../styles/theme.css';
 
-.dashboard-header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 1.5rem 0;
-}
+/* Responsive grid para todas las secciones de tarjetas */
 
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.welcome-section h1 {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-}
-
-.welcome-message {
-  color: #6b7280;
-  font-size: 1rem;
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.header-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  color: #374151;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.header-button:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.profile-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-}
-
-.profile-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.profile-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.875rem;
-}
-
-.refresh-icon {
-  font-size: 1rem;
-}
-
-.dashboard-main {
-  padding: 2rem 0;
-}
-
-.dashboard-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-.section-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-  margin: 0 0 1.5rem 0;
-}
-
-.stats-section {
-  margin-bottom: 3rem;
-}
-
-.stats-grid {
+.actions-cards-grid,
+.stats-cards-grid,
+.activity-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.stat-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-}
-
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 1100px;
+  margin: 2rem auto 2.5rem auto;
+  gap: 2rem;
   justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
+  align-items: stretch;
+  box-sizing: border-box;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
-.collection-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.cart-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.balance-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.trades-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-
-.stat-content {
-  flex: 1;
+@media (max-width: 900px) {
+  .actions-cards-grid,
+  .stats-cards-grid,
+  .activity-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+  }
 }
-
-.stat-number {
-  font-size: 1.75rem;
-  font-weight: bold;
-  color: #1f2937;
-  line-height: 1;
-}
-
-.stat-label {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-.actions-section {
-  margin-bottom: 3rem;
-}
-
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+@media (max-width: 600px) {
+  .actions-cards-grid,
+  .stats-cards-grid,
+  .activity-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
 }
 
 .action-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: #1e293b;
+  border: 2px solid #334155;
+  border-radius: 1rem;
+  min-width: 270px;
+  max-width: 340px;
+  flex: 1 1 270px;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
+  padding: 1.5rem 1.5rem;
+  color: #e2e8f0;
+  box-sizing: border-box;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
   text-decoration: none;
-  color: inherit;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s;
 }
-
 .action-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  border-color: #00d4ff;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.18);
 }
-
 .action-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
+  font-size: 2.3rem;
+  margin-right: 0.5rem;
+  color: #00d4ff;
   flex-shrink: 0;
 }
-
-.action-content h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.25rem 0;
-}
-
-.action-content p {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0;
-}
-
-.activity-section {
-  margin-bottom: 2rem;
-}
-
-.activity-list {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.activity-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 2rem;
-  color: #6b7280;
-}
-
-.empty-activity {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #6b7280;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.empty-activity h3 {
-  font-size: 1.125rem;
-  margin: 0 0 0.5rem 0;
-  color: #374151;
-}
-
-.activity-items {
+.action-info {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: flex-start;
 }
-
-.activity-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
-.activity-item:hover {
-  background: rgba(0, 0, 0, 0.02);
-}
-
-.activity-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.action-title {
   font-size: 1.25rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.2rem;
+  letter-spacing: -0.5px;
+}
+.action-desc {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
+
+/* ...eliminado, ahora está unificado arriba... */
+ .activity-card {
+  background: #1e293b;
+  border: 1.5px solid #334155;
+  border-radius: 1rem;
+  min-width: 270px;
+  max-width: 340px;
+  flex: 1 1 270px;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 1.5rem 1.5rem;
+  color: #e2e8f0;
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.activity-card:hover {
+  border-color: #00d4ff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.13);
+}
+.activity-icon {
+  font-size: 2rem;
+  margin-right: 0.5rem;
+  color: #00d4ff;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+.activity-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.activity-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.2rem;
+  letter-spacing: -0.5px;
+}
+.activity-desc {
+  font-size: 1.01rem;
+  color: #94a3b8;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  margin-bottom: 0.2rem;
+}
+.activity-time {
+  font-size: 0.98rem;
+  color: #38bdf8;
+  font-weight: 500;
+  margin-top: 0.1rem;
+}
+.activity-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+.activity-empty {
+  opacity: 0.7;
+}
+
+/* ...eliminado, ahora está unificado arriba... */
+/* Eliminado: ahora la responsividad se maneja con minmax y media queries */
+ .stat-card {
+  background: #1e293b;
+  border: 2px solid #334155;
+  border-radius: 1rem;
+  min-width: 270px;
+  max-width: 340px;
+  flex: 1 1 270px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 1.5rem;
+  color: #e2e8f0;
+  box-sizing: border-box;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.stat-card:hover {
+  border-color: #00d4ff;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.18);
+}
+.stat-icon {
+  font-size: 2.7rem;
+  margin-right: 0.5rem;
+  color: #00d4ff;
   flex-shrink: 0;
 }
-
-.activity-icon.purchase { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.activity-icon.sale { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-.activity-icon.message { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.activity-icon.trade { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-
-.activity-content {
-  flex: 1;
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.stat-value {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.2rem;
+  letter-spacing: -1px;
+}
+.stat-label {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  font-weight: 500;
+  letter-spacing: -0.2px;
 }
 
-.activity-title {
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.25rem;
-}
-
-.activity-description {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-}
-
-.activity-time {
-  color: #9ca3af;
-  font-size: 0.75rem;
-}
-
-.loading-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid transparent;
-  border-top: 2px solid #6b7280;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-
-  .stats-grid,
-  .actions-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-content {
-    padding: 0 1rem;
-  }
+section {
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  max-width: 1200px;
 }
 </style>
