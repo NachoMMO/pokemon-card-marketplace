@@ -255,24 +255,7 @@ const handleSubmit = async () => {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 1rem;
-}
-
-.onboarding-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  width: 100%;
-  max-width: 500px;
-}
-
-.onboarding-title {
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
+@import '../styles/theme.css';
   color: #1f2937;
   margin-bottom: 0.5rem;
 }

@@ -1,0 +1,325 @@
+/* === Layout y cabecera === */
+.cyberpunk-home {
+  min-height: 100vh;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+.cyberpunk-header {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2.5rem;
+  height: 90px;
+  min-height: 90px;
+  background: #1e293b;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+  border-bottom: 1.5px solid #334155;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-sizing: border-box;
+}
+.logo {
+  font-family: 'Poppins', 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-size: 2.4rem;
+  color: #f1f5f9;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: none;
+  text-shadow: none;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  text-transform: none;
+  user-select: none;
+}
+.cyberpunk-link {
+  display: inline-block;
+  margin-left: 1.5rem;
+  margin-right: 0.2rem;
+  font-size: 1rem;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #cbd5e1;
+  background: none;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.2rem;
+  text-decoration: none;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: -0.2px;
+  transition: color 0.18s;
+  position: relative;
+}
+.cyberpunk-link::after {
+  content: '';
+  display: block;
+  width: 0%;
+  height: 2.5px;
+  background: #00d4ff;
+  border-radius: 2px;
+  margin: 0.18em auto 0 auto;
+  transition: width 0.22s cubic-bezier(.4,0,.2,1);
+}
+.cyberpunk-link:hover {
+  color: #00d4ff;
+}
+.cyberpunk-link:hover::after {
+  width: 100%;
+}
+.cyberpunk-header nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.cyberpunk-hero {
+  margin: 2rem 0 3rem 0;
+  text-align: center;
+  max-width: 800px;
+  padding: 0 2rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+.register-card-dark {
+  background: #1e293b;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  padding: 2.5rem 2rem 2rem 2rem;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border: 1px solid #334155;
+}
+.hero-title {
+  font-family: 'Poppins', 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  text-shadow: none;
+  letter-spacing: -1px;
+}
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  font-weight: 400;
+  margin: 1rem 0 2rem 0;
+  text-shadow: none;
+  line-height: 1.6;
+  letter-spacing: -0.2px;
+}
+.signup-link-dark {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  color: #94a3b8;
+}
+.cyberpunk-footer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 2rem 0 1.5rem 0;
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  border-top: 1px solid #334155;
+  margin-top: auto;
+  box-sizing: border-box;
+}
+
+/* === RegisterForm: mensajes, checkbox, links secundarios === */
+.register-form-container {
+  min-height: unset;
+  display: contents;
+  background: none;
+  padding: 0;
+}
+.register-form-card {
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  width: 100%;
+  max-width: unset;
+  margin: 0;
+  border: none;
+}
+.success-message {
+  background-color: #134e4a;
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+.email-notice {
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  color: #a7f3d0;
+}
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+}
+.checkbox-input {
+  margin-right: 0.5rem;
+  margin-top: 0.125rem;
+}
+.checkbox-text {
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.4;
+}
+.terms-link {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+.terms-link:hover {
+  color: #2563eb;
+}
+.signin-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+.link {
+  color: #3b82f6;
+  text-decoration: none;
+}
+.link:hover {
+  text-decoration: underline;
+}
+/* Estilos globales para formularios, inputs, labels y botones */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 0.25rem;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  text-align: left;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 2px #00d4ff33;
+}
+
+.form-input.error {
+  border-color: #ef4444;
+}
+
+.form-input:disabled {
+  background-color: #1e293b;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.field-error {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.error-message {
+  background-color: #7f1d1d;
+  border: 1px solid #ef4444;
+  color: #fecaca;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.submit-button {
+  width: 100%;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.submit-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.forgot-password-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.forgot-password-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}

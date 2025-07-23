@@ -1,16 +1,28 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1 class="login-title">Welcome Back</h1>
-      <p class="login-subtitle">Sign in to continue to your Pokémon Card Marketplace</p>
-
-      <LoginForm />
-
-      <div class="signup-link">
-        Don't have an account?
-        <router-link to="/register" class="link">Sign up</router-link>
+  <div class="cyberpunk-home">
+    <header class="cyberpunk-header">
+      <h1 class="logo">Pokemon TCG</h1>
+      <nav>
+        <router-link to="/" class="cyberpunk-link">Home</router-link>
+        <router-link to="/catalog" class="cyberpunk-link">Catalog</router-link>
+        <router-link to="/login" class="cyberpunk-link">Login</router-link>
+        <router-link to="/register" class="cyberpunk-link">Register</router-link>
+      </nav>
+    </header>
+    <main class="cyberpunk-hero">
+      <div class="login-card-dark">
+        <h2 class="hero-title">Welcome Back</h2>
+        <p class="hero-subtitle">Sign in to continue to your Pokémon Card Marketplace</p>
+        <LoginForm />
+        <div class="signup-link-dark">
+          ¿No tienes cuenta?
+          <router-link to="/register" class="cyberpunk-link">Regístrate</router-link>
+        </div>
       </div>
-    </div>
+    </main>
+    <footer class="cyberpunk-footer">
+      <span>© 2025 Pokemon TCG</span>
+    </footer>
   </div>
 </template>
 
@@ -19,52 +31,5 @@ import LoginForm from '../components/LoginForm.vue'
 </script>
 
 <style scoped>
-.login-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 1rem;
-}
-
-.login-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  width: 100%;
-  max-width: 400px;
-}
-
-.login-title {
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.login-subtitle {
-  font-size: 1rem;
-  color: #6b7280;
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.signup-link {
-  text-align: center;
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.link {
-  color: #667eea;
-  text-decoration: none;
-}
-
-.link:hover {
-  text-decoration: underline;
-}
+@import '../styles/theme.css';
 </style>

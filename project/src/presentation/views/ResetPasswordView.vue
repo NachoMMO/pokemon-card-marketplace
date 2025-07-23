@@ -155,6 +155,7 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
+@import '../styles/theme.css';
 .reset-password-container {
   display: flex;
   align-items: center;
@@ -253,20 +254,6 @@ const handleSubmit = async () => {
 }
 
 .success-message {
-  background-color: #c6f6d5;
-  color: #22543d;
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  border: 1px solid #9ae6b4;
-}
-
-.button {
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;

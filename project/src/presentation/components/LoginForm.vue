@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive } from 'vue'
 import { useLogin } from '../composables/useLogin'
 
 const { isLoading, error, loginUser, clearError } = useLogin()
@@ -174,6 +174,8 @@ const handlePasswordInput = () => {
 </script>
 
 <style scoped>
+@import '../styles/theme.css';
+
 .login-form {
   display: flex;
   flex-direction: column;
@@ -182,115 +184,20 @@ const handlePasswordInput = () => {
 }
 
 .error-message {
-  background-color: #fee2e2;
+  background-color: #7f1d1d;
   border: 1px solid #ef4444;
-  color: #991b1b;
-  padding: 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  color: #fecaca;
 }
 
-.form-group {
+.login-form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
-}
-
-.form-input {
+  gap: 1.5rem;
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-input.error {
-  border-color: #ef4444;
-}
-
-.form-input:disabled {
-  background-color: #f9fafb;
-  color: #6b7280;
-  cursor: not-allowed;
-}
-
-.field-error {
-  color: #ef4444;
-  font-size: 0.75rem;
-}
-
-.submit-button {
-  width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.submit-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-}
-
-.submit-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid transparent;
-  border-top: 2px solid currentColor;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .form-footer {
   margin-top: 1rem;
   text-align: center;
-}
-
-.forgot-password-link {
-  color: #667eea;
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.forgot-password-link:hover {
-  color: #5a67d8;
-  text-decoration: underline;
 }
 </style>
